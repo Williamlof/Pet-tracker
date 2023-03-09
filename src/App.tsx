@@ -8,15 +8,18 @@ import Header from "./components/header/header";
 import ContactForm from "./views/contactForm/ContactForm";
 import AuthRoute from "./components/AuthRoute/AuthRoute";
 import { Route, Routes } from "react-router-dom";
-import LoginPage from "./views/login/Login";
-import Dashboard from "./views/dashboard/Dashboard";
+import SignInPage from "./views/signIn/SignIn";
+import MyPets from "./views/myPets/MyPets";
+
 import { initializeApp } from "firebase/app";
 import { firebaseConfig } from "./services/firebase";
+import AddPet from "./views/myPets/addPet/AddPet";
 
 initializeApp(firebaseConfig);
+
 const App: React.FC = () => {
   return (
-    <div className=" h-screen w-full">
+    <div className=" h-full w-full">
       <Header />
       <Routes>
         <Route path="/" element={<Home />} />
@@ -24,15 +27,16 @@ const App: React.FC = () => {
         <Route path="/contact" element={<ContactForm />} />
         <Route path="/*" element={<Error />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/login" element={<LoginPage />} />
+        <Route path="/signin" element={<SignInPage />} />
         <Route
-          path="/dashboard"
+          path="/myPets"
           element={
             <AuthRoute>
-              <Dashboard />
+              <MyPets />
             </AuthRoute>
           }
         />
+        <Route path="/myPets/addPet" element={<AddPet />} />
       </Routes>
     </div>
   );

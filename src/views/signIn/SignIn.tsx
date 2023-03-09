@@ -12,18 +12,18 @@ import { useNavigate } from "react-router-dom";
 const firebaseApp = initializeApp(firebaseConfig);
 const firebaseAuth = getAuth(firebaseApp);
 
-interface LoginFormState {
+interface SignInFormState {
   email: string;
   password: string;
 }
 
-export interface ILoginPageProps {}
+export interface ISignInPageProps {}
 
-const LoginPage: React.FunctionComponent<ILoginPageProps> = (props) => {
+const SignInPage: React.FunctionComponent<ISignInPageProps> = (props) => {
   const auth = getAuth();
   const navigate = useNavigate();
   const [authing, setAuthing] = useState<boolean>(false);
-  const [formData, setFormData] = useState<LoginFormState>({
+  const [formData, setFormData] = useState<SignInFormState>({
     email: "",
     password: "",
   });
@@ -33,7 +33,7 @@ const LoginPage: React.FunctionComponent<ILoginPageProps> = (props) => {
     signInWithPopup(auth, new GoogleAuthProvider())
       .then((result) => {
         console.log(result);
-        navigate("/dashboard");
+        navigate("/mypets");
       })
       .catch((error) => {
         console.log(error);
@@ -61,7 +61,7 @@ const LoginPage: React.FunctionComponent<ILoginPageProps> = (props) => {
         password: "",
       });
 
-      navigate("/dashboard");
+      navigate("/mypets");
     } catch (error) {
       console.error(error);
       alert("Failed to sign in");
@@ -112,6 +112,7 @@ const LoginPage: React.FunctionComponent<ILoginPageProps> = (props) => {
             onClick={signInWithGoogle}
             className=" text-white mt-4 bg-[#4285F4] hover:bg-[#4285F4]/90 focus:ring-4 focus:outline-none focus:ring-[#4285F4]/50 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:focus:ring-[#4285F4]/55 mb-2 w-48"
             disabled={authing}
+            title="Sign in with Google"
           >
             <svg
               className="w-4 h-4 mr-2 -ml-1"
@@ -136,4 +137,4 @@ const LoginPage: React.FunctionComponent<ILoginPageProps> = (props) => {
   );
 };
 
-export default LoginPage;
+export default SignInPage;

@@ -1,42 +1,35 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function Home() {
+  const navigate = useNavigate();
   return (
     <div className=" bg-gray-800 flex justify-center items-center">
-      <div className="h-full w-5/6 bg-slate-600 rounded-lg p-6 m-6 mt-24">
-        <h1 className="text-slate-100 text-2xl">
-          Welcome to PetFolio, the ultimate tool for keeping track of your
-          animals' vital information!
+      <div className="h-screen bg-cover bg-center flex flex-col justify-center items-center">
+        <h1 className="text-4xl font-bold mb-14 text-slate-100">
+          Welcome to Pet Folio
         </h1>
-        <br />
-        <p className="text-slate-100 text-xl tracking-wide ">
-          With PetFolio, you can easily manage your animals' health records,
-          feeding schedules, and more. Whether you have a furry (or non-furry)
-          friend at home or run a large-scale breeding operation, our app makes
-          it easy to stay organized and informed about your animals. Record your
-          animal's weight, store veterinary records, upload images and notes,
-          track feeding schedules, set reminders, and more. Our app is easy to
-          use and navigate, and you can access your animals' records from
-          anywhere, at any time, using your desktop computer, tablet, or
-          smartphone.
-        </p>
-        <p className="text-slate-100 text-xl tracking-wide ">
-          <br />
-          Try PetFolio today and see how easy it is to keep track of your
-          animals' information!
+        <p className="text-lg mt-0 text-slate-100 m-14">
+          Keeping track of your pets has never been easier
         </p>
 
-        <section className="w-full flex justify-between items-center flex-col h-32">
+        <section className="w-full flex justify-between items-center flex-col h-64">
           <button
-            className="w-3/4
-              bg-slate-800  text-slate-100  p-4 pr-10 pl-10 rounded-lg mt-4 text-xl"
+            onClick={() => navigate("/about")}
+            className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg shadow w-3/4"
+          >
+            Read about our features here
+          </button>
+          <p className=" text-slate-100 text-xl">Or if you feel ready</p>
+          <button
+            className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg shadow w-3/4"
             onClick={() => (window.location.href = "/register")}
           >
             Register now
           </button>
           <a
-            className="font-medium text-blue-600 dark:text-blue-500 hover:underline"
-            href="/login"
+            className="font-medium text-blue-600 dark:text-blue-500 hover:underline m-4"
+            href="/signin"
           >
             Or click here to sign in with google
           </a>

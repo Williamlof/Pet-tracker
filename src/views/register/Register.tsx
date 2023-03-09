@@ -111,14 +111,14 @@ export default function Register() {
           </form>
         </div>
         <a
-          href="/login"
+          href="/signin"
           className=" text-blue-600 dark:text-blue-500 hover:underline mt-8
           text-lg
           font-semibold
 
           "
         >
-          Already registered? Click here to login
+          Already registered? Click here to signin
         </a>
       </div>
     </div>
