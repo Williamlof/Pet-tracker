@@ -50,7 +50,12 @@ export default function header() {
       navOption.addEventListener("click", () => {
         const pagePath = (navOption as HTMLAnchorElement).dataset.pagePath;
         if (pagePath) {
-          navigateToPage(navigate, pagePath);
+          if (window.location.href.includes(pagePath)) {
+            setIsOpen(false);
+            return;
+          } else {
+            navigateToPage(navigate, pagePath);
+          }
         }
       });
     });
@@ -84,7 +89,7 @@ export default function header() {
           <nav className="absolute top-12 right-0 h-screen w-screen bg-gray-900 bg-opacity-1 z-10 uppercase text-white mt-4  focus:ring-4 focus:outline-none focus:ring-[#4285F4]/50 font-medium rounded-lg dark:focus:ring-[#4285F4]/55">
             <ul className="flex flex-col items-center justify-center h-full space-y-4">
               <li className="text-2xl text-gray-50 underline">
-                <a className="nav-option" data-page-path="/">
+                <a className="nav-option" data-page-path="/home">
                   Home
                 </a>
               </li>

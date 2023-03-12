@@ -1,12 +1,28 @@
 import React, { useState } from "react";
 import { initializeApp } from "firebase/app";
+import { useNavigate } from "react-router-dom";
 import "firebase/auth";
 import { firebaseConfig } from "../../services/firebase";
-import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
+import {
+  getAuth,
+  createUserWithEmailAndPassword,
+  setPersistence,
+  browserSessionPersistence,
+} from "firebase/auth";
+import {
+  addDoc,
+  collection,
+  doc,
+  Firestore,
+  getFirestore,
+  setDoc,
+} from "@firebase/firestore";
 const firebaseApp = initializeApp(firebaseConfig);
-const firebaseAuth = getAuth(firebaseApp);
+const auth = getAuth(firebaseApp);
+const db = getFirestore(firebaseApp);
+
 interface RegisterFormState {
-  username: string;
+  displayName: string;
   email: string;
   password: string;
   confirmPassword: string;
@@ -14,11 +30,12 @@ interface RegisterFormState {
 
 export default function Register() {
   const [formData, setFormData] = useState<RegisterFormState>({
-    username: "",
+    displayName: "",
     email: "",
     password: "",
     confirmPassword: "",
   });
+  const navigate = useNavigate();
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
@@ -28,7 +45,7 @@ export default function Register() {
   const handleFormSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    const { username, email, password, confirmPassword } = formData;
+    const { displayName, email, password, confirmPassword } = formData;
 
     if (password !== confirmPassword) {
       alert("Passwords do not match");
@@ -37,11 +54,25 @@ export default function Register() {
 
     try {
       // Create a new user account with email and password
-      await createUserWithEmailAndPassword(firebaseAuth, email, password);
+      await setPersistence(auth, browserSessionPersistence);
+      await createUserWithEmailAndPassword(auth, email, password).then(
+        (userCredential) => {
+          // Signed in
+          const user = userCredential.user;
+          // ...
+          console.log(user);
+        }
+      );
 
+      await setDoc(doc(db, "users", auth.currentUser!.uid), {
+        displayName: displayName,
+        email: email,
+        pets: [],
+      });
+      navigate("/mypets");
       // Clear the form data
       setFormData({
-        username: "",
+        displayName: "",
         email: "",
         password: "",
         confirmPassword: "",
@@ -66,10 +97,10 @@ export default function Register() {
           >
             <input
               type="text"
-              name="username"
-              value={formData.username}
+              name="displayName"
+              value={formData.displayName}
               onChange={handleInputChange}
-              placeholder="Username"
+              placeholder="Display name"
               className="w-80 h-10 rounded-md bg-gray-50 p-2 text-gray-600"
               required
             />

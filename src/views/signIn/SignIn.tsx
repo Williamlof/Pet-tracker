@@ -6,10 +6,21 @@ import {
   GoogleAuthProvider,
   signInWithPopup,
   signInWithEmailAndPassword,
+  setPersistence,
+  browserSessionPersistence,
 } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
+import {
+  addDoc,
+  collection,
+  doc,
+  getDoc,
+  getFirestore,
+  setDoc,
+} from "@firebase/firestore";
 
 const firebaseApp = initializeApp(firebaseConfig);
+const db = getFirestore(firebaseApp);
 const firebaseAuth = getAuth(firebaseApp);
 
 interface SignInFormState {
@@ -30,15 +41,31 @@ const SignInPage: React.FunctionComponent<ISignInPageProps> = (props) => {
 
   const signInWithGoogle = async () => {
     setAuthing(true);
-    signInWithPopup(auth, new GoogleAuthProvider())
-      .then((result) => {
-        console.log(result);
-        navigate("/mypets");
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-    setAuthing(false);
+    try {
+      await setPersistence(auth, browserSessionPersistence)
+        .then(() => {
+          return signInWithPopup(auth, new GoogleAuthProvider());
+        })
+        .then(async (result) => {
+          const user = result.user;
+          const docRef = doc(db, "users", user.uid);
+          const docSnap = await getDoc(docRef);
+          if (docSnap.exists()) {
+          } else {
+            await setDoc(doc(db, "users", user.uid), {
+              id: user.uid,
+              displayName: user.displayName,
+              email: user.email,
+              pets: [],
+            });
+          }
+          navigate("/mypets");
+        });
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setAuthing(false);
+    }
   };
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -53,7 +80,9 @@ const SignInPage: React.FunctionComponent<ISignInPageProps> = (props) => {
 
     try {
       // Sign in the user with email and password
-      await signInWithEmailAndPassword(firebaseAuth, email, password);
+      await setPersistence(auth, browserSessionPersistence).then(() => {
+        return signInWithEmailAndPassword(auth, email, password);
+      });
 
       // Clear the form data
       setFormData({

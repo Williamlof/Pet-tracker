@@ -1,29 +1,123 @@
 import React, { useState } from "react";
 import firebase, { initializeApp } from "firebase/app";
-import "firebase/auth";
-import { getFirestore, collection, addDoc } from "firebase/firestore";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
+import {
+  getFirestore,
+  collection,
+  addDoc,
+  doc,
+  setDoc,
+  updateDoc,
+  arrayUnion,
+} from "firebase/firestore";
 import { firebaseConfig } from "../../../services/firebase";
 const app = initializeApp(firebaseConfig);
+const auth = getAuth();
+
 interface PetData {
   name: string;
   notes: string;
   breed: string;
   weight: number;
-  birthday: Date;
+  birthday: string;
   diet: string;
   gender: string;
 }
+
 const AddPetForm = () => {
   const [petData, setPetData] = useState<PetData>({
     name: "",
     notes: "",
     breed: "",
     weight: 0,
-    birthday: new Date(),
+    birthday: "",
     diet: "",
     gender: "",
   });
 
+  // Add a listener to check if a user is authenticated
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      const db = getFirestore(app);
+      // User is signed in, see docs for a list of available properties
+      // https://firebase.google.com/docs/reference/js/firebase.User
+      console.log("User is signed in");
+      console.log(auth.currentUser!.uid);
+    } else {
+      // User is signed out
+      console.log("User is signed out");
+
+      // ...
+    }
+  });
+
+  class Pet {
+    name: string;
+    notes: string;
+    breed: string;
+    weight: number;
+    birthday: Date;
+    diet: string;
+    gender: string;
+
+    constructor(
+      name: string,
+      notes: string,
+      breed: string,
+      weight: number,
+      birthday: Date,
+      diet: string,
+      gender: string
+    ) {
+      this.name = name;
+      this.notes = notes;
+      this.breed = breed;
+      this.weight = weight;
+      this.birthday = birthday;
+      this.diet = diet;
+      this.gender = gender;
+    }
+    toString() {
+      return (
+        this.name +
+        ", " +
+        this.notes +
+        ", " +
+        this.breed +
+        ", " +
+        this.diet +
+        ", " +
+        this.gender
+      );
+    }
+  }
+
+  // Firestore data converter
+  const petConverter = {
+    toFirestore: (pet: PetData) => {
+      return {
+        name: pet.name,
+        notes: pet.notes,
+        breed: pet.breed,
+        weight: pet.weight,
+        birthday: pet.birthday,
+        diet: pet.diet,
+        gender: pet.gender,
+      };
+    },
+    fromFirestore: (snapshot: { data: (arg0: any) => any }, options: any) => {
+      const data = snapshot.data(options);
+      return new Pet(
+        data.name,
+        data.notes,
+        data.breed,
+        data.weight,
+        data.birthday,
+        data.diet,
+        data.gender
+      );
+    },
+  };
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setPetData({
@@ -31,28 +125,48 @@ const AddPetForm = () => {
       notes: "",
       breed: "",
       weight: 0,
-      birthday: new Date(),
+      birthday: "",
       diet: "",
       gender: "",
     });
-    const db = getFirestore(app);
-    const docRef = await addDoc(collection(db, "pets"), {
-      name: petData.name,
-      notes: petData.notes,
-      breed: petData.breed,
-      weight: petData.weight,
-      birthday: petData.birthday,
-      diet: petData.diet,
-      gender: petData.gender,
-    });
-    console.log("Document written with ID: ", docRef.id);
-  };
 
+    const db = getFirestore(app);
+
+    // Create a reference to the user's pets collection
+    const userDocRef = doc(db, "users", auth.currentUser!.uid);
+    console.log("User doc ref: ", userDocRef);
+
+    // Add the pet to the user's pets collection
+    try {
+      console.log("entered try block");
+
+      await updateDoc(userDocRef, {
+        pets: arrayUnion({
+          name: petData.name,
+          notes: petData.notes,
+          breed: petData.breed,
+          weight: petData.weight,
+          birthday: petData.birthday,
+          diet: petData.diet,
+          gender: petData.gender,
+        }),
+      });
+    } catch (e) {
+      console.error("Error adding document: ", e);
+    }
+  };
   return (
     <div
       className="flex flex-col justify-center items-center
-    bg-slate-700 w-full h-full pt-24"
+    bg-slate-700 w-full h-full pt-14"
     >
+      <a
+        className=" text-blue-400 dark:text-blue-200 hover:underline mt-8 text-lg font-semibold self-start pl-8 mb-8"
+        href="/myPets"
+      >
+        Cancel
+      </a>
+
       <form
         onSubmit={handleSubmit}
         className=" 
@@ -74,9 +188,9 @@ const AddPetForm = () => {
           Birthday:
           <input
             type="date"
-            value={petData.birthday.toISOString().slice(0, 10)}
+            value={petData.birthday.toString().slice(0, 10)}
             onChange={(e) =>
-              setPetData({ ...petData, birthday: new Date(e.target.value) })
+              setPetData({ ...petData, birthday: e.target.value })
             }
             className=" w-full rounded-lg h-10 shadow-md text-slate-800 p-4"
             onKeyDown={(e) => {
