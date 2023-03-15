@@ -18,6 +18,7 @@ import {
   getFirestore,
   setDoc,
 } from "@firebase/firestore";
+import { deleteObject, getStorage, ref, uploadString } from "firebase/storage";
 
 const firebaseApp = initializeApp(firebaseConfig);
 const db = getFirestore(firebaseApp);
@@ -39,6 +40,20 @@ const SignInPage: React.FunctionComponent<ISignInPageProps> = (props) => {
     password: "",
   });
 
+  const createUserFolder = async (uid: string) => {
+    // Get a reference to the user's storage folder
+    const storageRef = getStorage();
+    const userFolderRef = ref(storageRef, `users/${uid}/`);
+
+    try {
+      // Set a dummy file to create the user's storage folder
+      await uploadString(ref(userFolderRef, "dummy"), "dummy content");
+      console.log(`User storage folder created for user with uid: ${uid}`);
+    } catch (error) {
+      console.error(`Error creating user storage folder: ${error}`);
+    }
+  };
+
   const signInWithGoogle = async () => {
     setAuthing(true);
     try {
@@ -59,6 +74,7 @@ const SignInPage: React.FunctionComponent<ISignInPageProps> = (props) => {
               pets: [],
             });
           }
+          await createUserFolder(user.uid);
           navigate("/mypets");
         });
     } catch (error) {

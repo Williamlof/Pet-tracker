@@ -5,9 +5,9 @@ import { getFirestore, doc, getDoc } from "firebase/firestore";
 import { firebaseConfig } from "../../services/firebase";
 import { initializeApp } from "firebase/app";
 import { useNavigate } from "react-router-dom";
-import Accordion from "../../components/accordion/Accordion";
-import EditIcon from "../../assets/icons/EditIcon.svg";
 import { FaEdit } from "react-icons/fa";
+import PetCard from "../../components/petCard/PetCard";
+
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
@@ -25,6 +25,7 @@ interface PetData {
 
 const MyPets = () => {
   const [pets, setPets] = useState<Array<PetData>>([]);
+  const [editOverlay, setEditOverlay] = useState<boolean>(false);
   const navigate = useNavigate();
 
   // a function that will fetch all pets from the firestore database
@@ -79,41 +80,54 @@ const MyPets = () => {
     });
   }, []);
 
+  const toggleEditOverlay = () => {
+    if (editOverlay) {
+      setEditOverlay(false);
+    } else {
+      setEditOverlay(true);
+    }
+  };
+
   return (
-    <div className="flex items-center w-full h-screen flex-col bg-slate-700">
+    <div className="flex items-center w-full min-h-screen flex-col bg-slate-700 pb-8">
       {pets.length > 0 ? (
         <div className="flex flex-col items-center w-3/4 h-full mt-28">
-          <section className="w-full">
+          <section className="w-full  flex flex-col justify-center items-center">
             <h1 className=" text-slate-100 text-xl mb-8 font-semibold">
               My Pets
             </h1>
             {pets.map((pet: PetData) => (
-              // tailwind classes to make an accordion for each pet
-              <section key={pet.name}>
-                <Accordion
-                  title={pet.name}
-                  icon={<FaEdit />}
-                  content={
-                    <div>
-                      <div className="px-4 pb-2">
-                        <p>Breed: {pet.breed}</p>
-                        <p>Notes: {pet.notes}</p>
-                        <p>Weight: {pet.weight}</p>
-                        <p>
-                          Birthday:{" "}
-                          {new Date(pet.birthday).toLocaleDateString("en-US")}
-                        </p>
-                        <p>Diet: {pet.diet}</p>
-                        <p>Gender: {pet.gender}</p>
-                      </div>
-                    </div>
+              <section
+                key={pet.name}
+                className="h-full w-full bg-slate-200 rounded-md flex justify-between mb-4"
+              >
+                <PetCard
+                  petName={pet.name}
+                  image={
+                    <img
+                      className="h-36 w-full object-cover rounded-t-md"
+                      src="https://images.unsplash.com/photo-1583511655826-05700d52f4d9?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=688&q=80"
+                    ></img>
+                  }
+                  title={
+                    <h1 className="self-center text-lg first-letter:capitalize">
+                      {pet.name}
+                    </h1>
+                  }
+                  icon={
+                    <FaEdit
+                      className="mr-4 self-center"
+                      onClick={() => {
+                        toggleEditOverlay;
+                      }}
+                    />
                   }
                 />
               </section>
             ))}
             <section className="flex justify-center items-end h-full">
               <button
-                className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-12 rounded-lg shadow"
+                className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-12 rounded-lg shadow mt-4"
                 onClick={() => {
                   navigate("/mypets/addpet");
                 }}
@@ -124,7 +138,7 @@ const MyPets = () => {
           </section>
         </div>
       ) : (
-        <div className=" mx-8">
+        <div className=" mx-8 mt-24">
           <p className=" text-slate-100 text-xl">
             You haven't added any pets yet!
           </p>

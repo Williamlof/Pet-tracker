@@ -17,6 +17,11 @@ import {
   getFirestore,
   setDoc,
 } from "@firebase/firestore";
+import { getStorage, ref, uploadString, deleteObject } from "firebase/storage";
+
+// Get a reference to the Firebase Storage service
+const app = initializeApp(firebaseConfig);
+const storage = getStorage(app);
 const firebaseApp = initializeApp(firebaseConfig);
 const auth = getAuth(firebaseApp);
 const db = getFirestore(firebaseApp);
@@ -36,6 +41,20 @@ export default function Register() {
     confirmPassword: "",
   });
   const navigate = useNavigate();
+
+  const createUserFolder = async (uid: string) => {
+    // Get a reference to the user's storage folder
+    const storageRef = getStorage();
+    const userFolderRef = ref(storageRef, `users/${uid}/`);
+
+    try {
+      // Set a dummy file to create the user's storage folder
+      await uploadString(ref(userFolderRef, "dummy"), "dummy content");
+      console.log(`User storage folder created for user with uid: ${uid}`);
+    } catch (error) {
+      console.error(`Error creating user storage folder: ${error}`);
+    }
+  };
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
@@ -69,6 +88,7 @@ export default function Register() {
         email: email,
         pets: [],
       });
+      await createUserFolder(auth.currentUser!.uid);
       navigate("/mypets");
       // Clear the form data
       setFormData({

@@ -14,6 +14,7 @@ import MyPets from "./views/myPets/MyPets";
 import { initializeApp } from "firebase/app";
 import { firebaseConfig } from "./services/firebase";
 import AddPet from "./views/myPets/addPet/AddPet";
+import PetDetails from "./views/PetDetails/PetDetails";
 
 initializeApp(firebaseConfig);
 
@@ -31,14 +32,17 @@ const App: React.FC = () => {
         <Route path="/register" element={<Register />} />
         <Route path="/signin" element={<SignInPage />} />
         <Route
-          path="/myPets"
+          path="/mypets"
           element={
             <AuthRoute>
               <MyPets />
             </AuthRoute>
           }
         />
-        <Route path="/myPets/addPet" element={<AddPet />} />
+
+        <Route path="/mypets/addPet" element={<AddPet />} />
+
+        <Route path="/mypets/:petName" element={<PetDetails />} />
       </Routes>
     </div>
   );

@@ -1,15 +1,8 @@
 import React, { useState } from "react";
-import firebase, { initializeApp } from "firebase/app";
+import { initializeApp } from "firebase/app";
+import { useNavigate } from "react-router-dom";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
-import {
-  getFirestore,
-  collection,
-  addDoc,
-  doc,
-  setDoc,
-  updateDoc,
-  arrayUnion,
-} from "firebase/firestore";
+import { getFirestore, doc, updateDoc, arrayUnion } from "firebase/firestore";
 import { firebaseConfig } from "../../../services/firebase";
 const app = initializeApp(firebaseConfig);
 const auth = getAuth();
@@ -25,6 +18,7 @@ interface PetData {
 }
 
 const AddPetForm = () => {
+  const navigate = useNavigate();
   const [petData, setPetData] = useState<PetData>({
     name: "",
     notes: "",
@@ -51,73 +45,6 @@ const AddPetForm = () => {
     }
   });
 
-  class Pet {
-    name: string;
-    notes: string;
-    breed: string;
-    weight: number;
-    birthday: Date;
-    diet: string;
-    gender: string;
-
-    constructor(
-      name: string,
-      notes: string,
-      breed: string,
-      weight: number,
-      birthday: Date,
-      diet: string,
-      gender: string
-    ) {
-      this.name = name;
-      this.notes = notes;
-      this.breed = breed;
-      this.weight = weight;
-      this.birthday = birthday;
-      this.diet = diet;
-      this.gender = gender;
-    }
-    toString() {
-      return (
-        this.name +
-        ", " +
-        this.notes +
-        ", " +
-        this.breed +
-        ", " +
-        this.diet +
-        ", " +
-        this.gender
-      );
-    }
-  }
-
-  // Firestore data converter
-  const petConverter = {
-    toFirestore: (pet: PetData) => {
-      return {
-        name: pet.name,
-        notes: pet.notes,
-        breed: pet.breed,
-        weight: pet.weight,
-        birthday: pet.birthday,
-        diet: pet.diet,
-        gender: pet.gender,
-      };
-    },
-    fromFirestore: (snapshot: { data: (arg0: any) => any }, options: any) => {
-      const data = snapshot.data(options);
-      return new Pet(
-        data.name,
-        data.notes,
-        data.breed,
-        data.weight,
-        data.birthday,
-        data.diet,
-        data.gender
-      );
-    },
-  };
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setPetData({
@@ -151,6 +78,7 @@ const AddPetForm = () => {
           gender: petData.gender,
         }),
       });
+      navigate("/mypets");
     } catch (e) {
       console.error("Error adding document: ", e);
     }
