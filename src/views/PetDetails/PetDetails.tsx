@@ -68,6 +68,7 @@ function PetDetails() {
   const [imageChanged, setImageChanged] = useState(false);
   const [fileChanged, setFileChanged] = useState(false);
   const [deletedImageUrl, setDeletedImageUrl] = useState<string>("");
+  const [isFetching, setIsFetching] = useState(true);
   const [deletedFileUrl, setDeletedFileUrl] = useState<string>("");
   const [popupContent, setPopupContent] = useState<React.ReactNode>(<></>);
   const triggerPopup = (imageUrl: string) => {
@@ -232,7 +233,10 @@ function PetDetails() {
     }
   };
 
-  const handleFileUpload = async (name: string) => {
+  const handleFileUpload = async (
+    name: string,
+    onUploadComplete: () => void
+  ) => {
     const user = auth.currentUser;
 
     if (!selectedFile || !user) {
@@ -247,12 +251,6 @@ function PetDetails() {
       triggerPopup("");
       const userFolderRef = ref(storage, `users/${user.uid}/`);
       const filesFolderRef = ref(userFolderRef, "files");
-
-      await setDoc(
-        doc(collection(db, "users", user.uid, "files")),
-        { exists: true },
-        { merge: true }
-      );
 
       const newFileName = await generateUniqueFileName(
         filesFolderRef,
@@ -271,6 +269,7 @@ function PetDetails() {
       });
 
       const fileUrl = await getDownloadURL(fileRef);
+      console.log("Uploaded file URL:", fileUrl);
       const userRef = doc(db, `users/${user.uid}`);
       const userDoc = await getDoc(userRef);
 
@@ -296,10 +295,10 @@ function PetDetails() {
 
       pets[petIndex] = updatedPet;
       await setDoc(userRef, { pets }, { merge: true });
-
+      console.log("Updated data in Firestore:", (await getDoc(userRef)).data());
       setSelectedFile(null);
       setSelectedImage(null);
-      setFileChanged(!fileChanged);
+      onUploadComplete();
       setPopupContent(<p>File uploaded successfully!</p>);
       setTimeout(() => {
         closePopup();
@@ -388,8 +387,7 @@ function PetDetails() {
         if (metadata) {
           const url = await getDownloadURL(storageRef);
           if (url) {
-            result.push(imageUrl);
-            setImageChanged(!imageChanged);
+            result.push(url); // Change this line to push the download URL instead of the image URL
           }
         }
       } catch (error) {
@@ -410,15 +408,25 @@ function PetDetails() {
     const fileUrls = pet.files ?? [];
     const result: FileData[] = [];
     for (const fileUrl of fileUrls) {
+      console.log("File URL from Firestore:", fileUrl);
       const storageRef = ref(storage, fileUrl);
+
       try {
+        // Check if the file exists in Firebase Storage
+        const exists = await getMetadata(storageRef)
+          .then(() => true)
+          .catch(() => false);
+
+        if (!exists) {
+          console.warn("File not found in Firebase Storage:", fileUrl);
+          continue;
+        }
+
         const metadata = await getMetadata(storageRef);
-        if (metadata) {
-          const url = await getDownloadURL(storageRef);
-          if (url) {
-            const fileName = metadata.name || "";
-            result.push({ url: fileUrl, name: fileName });
-          }
+        const url = await getDownloadURL(storageRef);
+        if (url) {
+          const fileName = metadata.name || "";
+          result.push({ url: url, name: fileName });
         }
       } catch (error) {
         console.error(error);
@@ -427,7 +435,7 @@ function PetDetails() {
     return result;
   }
 
-  async function getImageDownloadUrls(petName: string) {
+  async function getImageDownloadUrls(petName: string, imageUrl: string) {
     console.log("getImageDownloadUrls");
     const userUid = getAuth().currentUser!.uid;
 
@@ -437,7 +445,7 @@ function PetDetails() {
       const userDoc = await getDoc(userRef);
       if (!userDoc.exists()) {
         console.error("User document does not exist!");
-        return [];
+        return;
       }
 
       const pets = (await userDoc.data()?.pets) ?? [];
@@ -447,47 +455,31 @@ function PetDetails() {
 
       if (!pet) {
         console.error(`Pet with name ${petName} not found!`);
-        return [];
+        return;
       }
 
       const imageUrls = pet.images ?? [];
-      let result: string[] = [];
 
-      for (const imageUrl of imageUrls) {
-        const storageRef = ref(storage, imageUrl);
-        try {
-          const downloadUrl = await getDownloadURL(storageRef);
-          if (downloadUrl) {
-            result.push(downloadUrl);
-            await downloadImage(downloadUrl);
-          }
-        } catch (error) {
-          console.error(`Error getting download URL for ${imageUrl}`, error);
-        }
+      if (imageUrls.includes(imageUrl)) {
+        await downloadImage(imageUrl);
+      } else {
+        console.error(`Image URL ${imageUrl} not found in the pet's images!`);
       }
-
-      return result;
     }
   }
 
   async function downloadImage(imageUrl: string) {
     const storageRef = ref(storage, imageUrl);
-
     try {
-      const downloadUrl = await getDownloadURL(storageRef);
-      const response = await fetch(downloadUrl);
-      const blob = await response.blob();
-      const blobUrl = URL.createObjectURL(blob);
-
-      const link = document.createElement("a");
-      link.href = blobUrl;
-      const fileName = imageUrl.split("/").pop()?.split("?")[0] || "image"; // Updated to remove URL parameters
-      link.download = fileName;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      const metadata = await getMetadata(storageRef);
+      if (metadata) {
+        const url = await getDownloadURL(storageRef);
+        if (url) {
+          window.open(url, "_blank"); // Open the download URL in a new tab
+        }
+      }
     } catch (error) {
-      console.error(`Error getting download URL for ${imageUrl}`, error);
+      console.error(error);
     }
   }
 
@@ -495,8 +487,7 @@ function PetDetails() {
     try {
       const storageRef = ref(storage, fileUrl);
       const url = await getDownloadURL(storageRef);
-      const proxyUrl = "https://cors-anywhere.herokuapp.com/";
-      const response = await fetch(proxyUrl + url);
+      const response = await fetch(url);
       const blob = await response.blob();
       const blobUrl = URL.createObjectURL(blob);
 
@@ -545,7 +536,8 @@ function PetDetails() {
   const deleteFile = async (petName: string, fileUrl: string) => {
     try {
       console.log("deleteFile");
-
+      triggerPopup("");
+      setPopupContent(<p>Deleting file...</p>);
       // Update pet document in Firestore
       const db = getFirestore();
       const userId = auth.currentUser!.uid;
@@ -573,7 +565,12 @@ function PetDetails() {
         console.log("deletedFileUrl: " + deletedFileUrl);
       }
       // Close the popup
-      setShowPopup(false);
+
+      setPopupContent(<p>File deleted!</p>);
+      setTimeout(() => {
+        closePopup();
+      }, 1000);
+      setFileChanged(!fileChanged);
     } catch (error) {
       console.error(error);
     }
@@ -584,6 +581,9 @@ function PetDetails() {
       if (user && name) {
         getImageUrls(user.uid, name).then((urls) => setImageUrls(urls));
         getFileUrls(user.uid, name).then((urls) => setFileObject(urls));
+        setTimeout(() => {
+          setIsFetching(false);
+        }, 5000);
       } else {
         return;
       }
@@ -593,22 +593,27 @@ function PetDetails() {
     return () => {
       unsubscribe();
     };
-  }, [auth, name]);
+  }, [auth, name, imageChanged, fileChanged]);
 
   useEffect(() => {
-    if (deletedImageUrl || deletedFileUrl) {
-      auth.currentUser &&
-        name &&
-        getImageUrls(auth.currentUser.uid, name).then((urls) =>
-          setImageUrls(urls)
-        );
-      auth.currentUser &&
-        name &&
-        getFileUrls(auth.currentUser.uid, name).then((urls) =>
-          setFileObject(urls)
-        );
-    }
-  }, [auth, deletedImageUrl, deletedFileUrl, name]);
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      if (user && name) {
+        getImageUrls(user.uid, name).then((urls) => setImageUrls(urls));
+
+        // Add a delay before calling getFileUrls
+        setTimeout(() => {
+          getFileUrls(user.uid, name).then((urls) => setFileObject(urls));
+        }, 1000);
+      } else {
+        return;
+      }
+    });
+
+    // Cleanup function to unsubscribe from the listener when the component is unmounted
+    return () => {
+      unsubscribe();
+    };
+  }, [auth, name, imageChanged, fileChanged]);
 
   return (
     <div className=" min-h-screen h-full w-full pt-20 bg-gradient-to-b from-slate-900  to-slate-700">
@@ -706,6 +711,7 @@ function PetDetails() {
                                 <section className="flex justify-between w-full">
                                   <button
                                     className="bg-red-500 text-slate-100 rounded-md px-4 py-3 mt-2"
+                                    title="This will delete the image from your account. There is no way to undo this action."
                                     onClick={() =>
                                       deleteImage(pet.name, imageUrl)
                                     }
@@ -714,8 +720,9 @@ function PetDetails() {
                                   </button>
                                   <button
                                     className="bg-slate-800 text-slate-100 rounded-md px-4 py-3 mt-2"
+                                    title="This will open a new tab where you can download the image by right clicking and selecting 'Save image as...'"
                                     onClick={() => {
-                                      getImageDownloadUrls(pet.name);
+                                      getImageDownloadUrls(pet.name, imageUrl);
                                     }}
                                   >
                                     Download image
@@ -761,20 +768,22 @@ function PetDetails() {
               title="Files"
               content={
                 <div className=" pb-2">
-                  {fileObject.length === 0 ? (
+                  {fileObject.length === 0 || isFetching ? (
                     <p className="p-4">No files found</p>
                   ) : (
                     fileObject.map((file: any) => (
                       <div
                         key={file.name}
-                        className="flex items-center justify-between my-2 border-b border-gray-600"
+                        className="flex items-center justify-between my-2 border rounded-lg p-1 border-gray-800"
                       >
                         <section className="flex items-center">
                           <FontAwesomeIcon
                             icon={faFile}
-                            className="p-1 h-12 w-12 text-slate-700"
+                            className="p-1 h-12 w-12 text-slate-400"
                           />
-                          <span className="text-sm w-36">{file.name}</span>
+                          <span className="text-sm w-36 text-slate-100">
+                            {file.name}
+                          </span>
                         </section>
                         <section className="sm:block">
                           <button
@@ -793,8 +802,8 @@ function PetDetails() {
                       </div>
                     ))
                   )}
-                  <section className="flex flex-col sm:flex-row p-1 sm:items-center sm:justify-between border border-slate-600 rounded-md">
-                    <p> Upload a new file:</p>
+                  <section className="flex flex-col xl:flex-row p-2 items-center sm:justify-between border-2 border-slate-700 rounded-md">
+                    <p className="text-slate-100"> Upload a new file:</p>
                     <input
                       type="file"
                       id="file-input"
@@ -808,12 +817,16 @@ function PetDetails() {
                     >
                       Choose a File
                     </label>
-                    <span className="text-sm text-gray-600  self-center text-center">
+                    <span className="text-md text-slate-100  self-center text-center my-2 p-1 border rounded-md">
                       {selectedFile?.name}
                     </span>
                     <button
-                      className="bg-slate-800 text-slate-100 rounded-md px-2 py-2 m-1 w-48"
-                      onClick={() => handleFileUpload(name)}
+                      className="bg-slate-800 text-slate-200 rounded-md px-2 py-2 m-1 w-48"
+                      onClick={() =>
+                        handleFileUpload(name, () => {
+                          setFileChanged(!fileChanged);
+                        })
+                      }
                     >
                       Upload file
                     </button>

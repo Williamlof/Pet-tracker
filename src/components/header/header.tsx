@@ -83,7 +83,7 @@ export default function header() {
         <div className="w-8 h-0.5 bg-amber-100"></div>
         <div className="w-8 h-0.5 bg-amber-100"></div>
       </nav>
-      <div className="hidden md:flex justify-start w-1/6 h-screen absolute left-0 z-10 top-16">
+      <div className="hidden md:flex justify-start w-1/6 h-screen absolute left-0 z-10 top-16 border-r border-stone-600">
         <aside className="fixed justify-center items-center w-48 min-h-screen rounded-r-lg">
           <ul className="flex flex-col items-start text-left pl-4 justify-start pt-12 h-screen w-full space-y-4">
             <li className="text-2xl text-gray-50 underline transition-all hover:scale-125 hover:translate-x-3 hover:text-blue-400">
