@@ -18,7 +18,7 @@ const PetCard: React.FC<petCardProps> = ({
   const navigate = useNavigate();
   return (
     <article
-      className="w-full h-full mb-0 flex justify-between"
+      className="w-full h-full mb-0 flex justify-between cursor-pointer"
       onClick={() => {
         navigate(`/mypets/${petName}/`);
       }}

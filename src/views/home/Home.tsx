@@ -9,7 +9,7 @@ export default function Home() {
     setIsLoaded(true);
   }, []);
   return (
-    <div className=" bg-gray-800 flex justify-evenly items-center flex-col-reverse sm:flex-row pt-24 min-h-screen">
+    <div className=" bg-gradient-to-b from-slate-900  to-slate-700 flex justify-evenly items-center flex-col-reverse sm:flex-row pt-24 min-h-screen">
       <div className="h-full bg-cover bg-center flex flex-col items-center sm:w-1/3 sm:justify-center">
         <h1
           className={`text-5xl font-bold mb-14 text-slate-100 sm:text-7xl text-center leading-relaxed ${
@@ -26,13 +26,13 @@ export default function Home() {
         >
           <button
             onClick={() => navigate("/about")}
-            className="bg-blue-500 hover:bg-blue-600 text-white py-4 px-4 rounded-full shadow w-80"
+            className="bg-blue-500 hover:bg-blue-600 text-white py-4 px-4 rounded-full shadow w-80 cursor-pointer"
           >
             Read about our features here
           </button>
           <p className="text-slate-100 text-xl">Or</p>
           <button
-            className="bg-blue-500 hover:bg-blue-600 text-white py-4 px-4 rounded-full shadow w-80"
+            className="bg-blue-500 hover:bg-blue-600 text-white py-4 px-4 rounded-full shadow w-80 cursor-pointer"
             onClick={() => (window.location.href = "/register")}
           >
             Register now

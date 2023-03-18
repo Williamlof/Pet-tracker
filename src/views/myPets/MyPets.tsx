@@ -116,7 +116,7 @@ const MyPets = () => {
   }
 
   return (
-    <div className="flex items-center w-full min-h-screen flex-col bg-slate-700 pb-8">
+    <div className="flex items-center w-full min-h-screen flex-col bg-gradient-to-b from-slate-900  to-slate-700 pb-8">
       {pets.length > 0 ? (
         <div className="flex flex-col items-center w-3/4 sm:w-1/3 h-full mt-28">
           <section className="w-full  flex flex-col justify-center items-center">
@@ -161,15 +161,15 @@ const MyPets = () => {
           </section>
         </div>
       ) : (
-        <div className=" mx-8 mt-24">
-          <p className=" text-slate-100 text-xl">
+        <div className="h-full flex flex-col gap-10 mt-36">
+          <p className=" text-slate-100 text-xl sm:text-4xl">
             You haven't added any pets yet!
           </p>
-          <br />
+
           <p className=" text-slate-100 text-xl">
             Click the button below to add your first pet.
           </p>
-          <section className="flex justify-center items-end h-full">
+          <section className="flex justify-center items-end">
             <button
               className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-12 rounded-lg shadow"
               onClick={() => {

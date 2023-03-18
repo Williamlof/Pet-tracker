@@ -180,7 +180,7 @@ export default function About() {
         </p>
         <section className="w-full flex justify-between items-center flex-col h-32">
           <button
-            className=" mt-6 bg-blue-500 hover:bg-blue-600 text-white py-4 px-4 rounded-full shadow w-80"
+            className=" mt-6 bg-blue-500 hover:bg-blue-600 text-white py-4 px-4 rounded-full shadow w-80 cursor-pointer"
             onClick={() => (window.location.href = "/register")}
           >
             Register now

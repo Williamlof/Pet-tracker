@@ -23,7 +23,7 @@ const Accordion: React.FC<AccordionProps> = ({ title, content, icon }) => {
   return (
     <div className="h-full w-full mb-4 p-6 ">
       <section
-        className="flex justify-between toggle-accordion"
+        className="flex justify-between toggle-accordion cursor-pointer"
         onClick={toggleAccordion}
       >
         <p className="text-slate-200 text-lg">{title}</p>
@@ -33,7 +33,7 @@ const Accordion: React.FC<AccordionProps> = ({ title, content, icon }) => {
       </section>
 
       <article
-        className="w-full bg-slate-200 overflow-hidden rounded-sm"
+        className="w-full bg-slate-600 overflow-hidden rounded-lg"
         style={{
           height: isOpen ? "auto" : "1px",
           overflow: isOpen ? "visible" : "hidden",

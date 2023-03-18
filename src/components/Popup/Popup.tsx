@@ -11,7 +11,7 @@ const Popup: React.FC<PopupProps> = ({ onClose, content }) => {
       <div className="bg-white rounded-lg shadow-lg p-4 pt-0 max-h-screen flex justify-center flex-col">
         <section className="self-end">
           <button
-            className=" p-1 my-2 bg-slate-800 text-slate-100 text-4xl hover:text-gray-800  h-12 w-12 rounded-lg"
+            className=" p-1 my-2 bg-slate-800 text-slate-100 text-4xl h-12 w-12 rounded-lg cursor-pointer"
             onClick={onClose}
           >
             X

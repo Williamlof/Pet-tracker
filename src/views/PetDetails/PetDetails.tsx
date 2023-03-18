@@ -121,7 +121,6 @@ function PetDetails() {
     }));
   };
   const handleSave = async () => {
-    console.log(pet);
     triggerPopup("");
     setPopupContent(<p>Saving...</p>);
     onAuthStateChanged(auth, async (user) => {
@@ -158,7 +157,8 @@ function PetDetails() {
 
         setTimeout(closePopup, 1000);
       } else {
-        console.log("Pets data not found");
+        setPopupContent(<p>Could not update pet information</p>);
+        setTimeout(closePopup, 1000);
       }
     });
   };
@@ -166,10 +166,10 @@ function PetDetails() {
   const handleImageUpload = async (name: string) => {
     const user = auth.currentUser;
 
-    if (!selectedFile || !user) {
+    if (!selectedImage || !user) {
       setPopupContent(<p>Please select an image to upload</p>);
       triggerPopup("");
-      setTimeout(closePopup, 1000);
+
       return;
     }
 
@@ -187,10 +187,10 @@ function PetDetails() {
         { merge: true }
       );
 
-      const imageRef = ref(imagesFolderRef, selectedFile.name);
+      const imageRef = ref(imagesFolderRef, selectedImage.name);
 
-      await uploadBytesResumable(imageRef, selectedFile, {
-        contentType: selectedFile.type,
+      await uploadBytesResumable(imageRef, selectedImage, {
+        contentType: selectedImage.type,
       });
 
       const imageUrl = await getDownloadURL(imageRef);
@@ -202,8 +202,8 @@ function PetDetails() {
         return;
       }
 
-      const pets = userDoc.data()?.pets ?? [];
-      const petIndex = pets.findIndex(
+      const pets = (await userDoc.data()?.pets) ?? [];
+      const petIndex = await pets.findIndex(
         (pet: { name: string }) => pet.name === name
       );
 
@@ -279,8 +279,8 @@ function PetDetails() {
         return;
       }
 
-      const pets = userDoc.data()?.pets ?? [];
-      const petIndex = pets.findIndex(
+      const pets = (await userDoc.data()?.pets) ?? [];
+      const petIndex = await pets.findIndex(
         (pet: { name: string }) => pet.name === name
       );
 
@@ -318,7 +318,8 @@ function PetDetails() {
             fetchPet(auth.currentUser.uid, petName);
           }
         } else {
-          console.log(" no user signed in ");
+          setPopupContent(<p>Please sign in to view this page</p>);
+          setTimeout(closePopup, 1000);
           navigate("/signin");
         }
     });
@@ -349,20 +350,31 @@ function PetDetails() {
     return newFileName;
   };
 
-  async function getImageUrls(userUid: string, petName: string) {
+  async function getPet(userUid: string, petName: string) {
     const userRef = doc(db, `users/${userUid}`);
     const userDoc = await getDoc(userRef);
 
     if (!userDoc.exists()) {
       console.error("User document does not exist!");
-      return [];
+      return null;
     }
 
-    const pets = userDoc.data()?.pets ?? [];
-    const pet = pets.find((pet: { name: string }) => pet.name === petName);
+    const pets = (await userDoc.data()?.pets) ?? [];
+    const pet = await pets.find(
+      (pet: { name: string }) => pet.name === petName
+    );
 
     if (!pet) {
       console.error(`Pet with name ${petName} not found!`);
+    }
+
+    return pet;
+  }
+
+  async function getImageUrls(userUid: string, petName: string) {
+    const pet = await getPet(userUid, petName);
+
+    if (!pet) {
       return [];
     }
 
@@ -389,25 +401,14 @@ function PetDetails() {
   }
 
   async function getFileUrls(userUid: string, petName: string) {
-    const userRef = doc(db, `users/${userUid}`);
-    const userDoc = await getDoc(userRef);
-
-    if (!userDoc.exists()) {
-      console.error("User document does not exist!");
-      return [];
-    }
-
-    const pets = userDoc.data()?.pets ?? [];
-    const pet = pets.find((pet: { name: string }) => pet.name === petName);
+    const pet = await getPet(userUid, petName);
 
     if (!pet) {
-      console.error(`Pet with name ${petName} not found!`);
       return [];
     }
 
     const fileUrls = pet.files ?? [];
     const result: FileData[] = [];
-
     for (const fileUrl of fileUrls) {
       const storageRef = ref(storage, fileUrl);
       try {
@@ -439,8 +440,10 @@ function PetDetails() {
         return [];
       }
 
-      const pets = userDoc.data()?.pets ?? [];
-      const pet = pets.find((pet: { name: string }) => pet.name === petName);
+      const pets = (await userDoc.data()?.pets) ?? [];
+      const pet = await pets.find(
+        (pet: { name: string }) => pet.name === petName
+      );
 
       if (!pet) {
         console.error(`Pet with name ${petName} not found!`);
@@ -472,14 +475,13 @@ function PetDetails() {
 
     try {
       const downloadUrl = await getDownloadURL(storageRef);
-      const proxyUrl = "https://cors-anywhere.herokuapp.com/";
-      const response = await fetch(proxyUrl + downloadUrl);
+      const response = await fetch(downloadUrl);
       const blob = await response.blob();
       const blobUrl = URL.createObjectURL(blob);
 
       const link = document.createElement("a");
       link.href = blobUrl;
-      const fileName = imageUrl.split("/").pop() || "image";
+      const fileName = imageUrl.split("/").pop()?.split("?")[0] || "image"; // Updated to remove URL parameters
       link.download = fileName;
       document.body.appendChild(link);
       link.click();
@@ -579,15 +581,11 @@ function PetDetails() {
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
-      if (user) {
-        getImageUrls(user.uid, name)
-          .then((urls) => setImageUrls(urls))
-          .catch((error) => console.error(error));
-        getFileUrls(user.uid, name)
-          .then((urls) => setFileObject(urls))
-          .catch((error) => console.error(error));
+      if (user && name) {
+        getImageUrls(user.uid, name).then((urls) => setImageUrls(urls));
+        getFileUrls(user.uid, name).then((urls) => setFileObject(urls));
       } else {
-        console.log("user is null or undefined");
+        return;
       }
     });
 
@@ -595,12 +593,27 @@ function PetDetails() {
     return () => {
       unsubscribe();
     };
-  }, [auth, imageChanged, deletedImageUrl, deletedFileUrl]);
+  }, [auth, name]);
+
+  useEffect(() => {
+    if (deletedImageUrl || deletedFileUrl) {
+      auth.currentUser &&
+        name &&
+        getImageUrls(auth.currentUser.uid, name).then((urls) =>
+          setImageUrls(urls)
+        );
+      auth.currentUser &&
+        name &&
+        getFileUrls(auth.currentUser.uid, name).then((urls) =>
+          setFileObject(urls)
+        );
+    }
+  }, [auth, deletedImageUrl, deletedFileUrl, name]);
 
   return (
-    <div className=" min-h-screen h-full w-full pt-20 bg-slate-700">
+    <div className=" min-h-screen h-full w-full pt-20 bg-gradient-to-b from-slate-900  to-slate-700">
       <article className=" flex flex-col items-center pb-8 ">
-        <section className="h-full min-h-screen w-full sm:w-2/4 md:max-w-screen-md lg:max-w-screen-lg bg-slate-600 rounded-md ">
+        <section className="h-full min-h-screen w-full sm:w-2/4 md:max-w-screen-md lg:max-w-screen-lg rounded-md ">
           <div className="flex flex-col items-center justify-center max-w-screen-xl">
             <div className="flex flex-col items-center justify-center w-full">
               <h1 className="text-2xl font-semibold text-slate-100 pt-4 first-letter:capitalize">
@@ -615,27 +628,27 @@ function PetDetails() {
               title="Information"
               content={
                 <div className="px-0 pb-2 ">
-                  <section className="flex justify-between py-2 border-b border-gray-600">
+                  <section className="flex justify-between py-2 border-b border-gray-800 text-slate-100">
                     <p>Breed:</p>
                     <p>{pet.breed}</p>
                   </section>
 
-                  <section className="flex justify-between py-2 border-b border-gray-600">
+                  <section className="flex justify-between py-2 border-b border-gray-800 text-slate-100">
                     <p>Gender:</p>
                     <p>{pet.gender}</p>
                   </section>
 
-                  <section className="flex justify-between py-2 border-b border-gray-600">
+                  <section className="flex justify-between py-2 border-b border-gray-800 text-slate-100">
                     <p>Current weight:</p>
                     <p>{pet.weight}kg</p>
                   </section>
 
-                  <section className="flex justify-between py-2 border-b border-gray-600">
+                  <section className="flex justify-between py-2 border-b border-gray-800 text-slate-100">
                     <p>Birthday:</p>
                     <p>{new Date(pet.birthday).toLocaleDateString("en-US")}</p>
                   </section>
-                  <section className="py-4">
-                    <label>
+                  <section className="py-4 ">
+                    <label className="text-slate-100">
                       Diet:
                       <textarea
                         name="diet"
@@ -643,12 +656,12 @@ function PetDetails() {
                         placeholder={pet.diet}
                         defaultValue={pet.diet || ""}
                         onChange={handleInputChange}
-                        className="mt-2 w-full h-32 p-1"
+                        className="mt-2 w-full h-32 p-2 rounded-md text-slate-800"
                       ></textarea>
                     </label>
                   </section>
                   <section className="py-4">
-                    <label>
+                    <label className="text-slate-100">
                       Notes:
                       <textarea
                         name="notes"
@@ -656,7 +669,7 @@ function PetDetails() {
                         defaultValue={pet.notes}
                         placeholder={pet.notes || ""}
                         onChange={handleInputChange}
-                        className="mt-2 w-full h-32 p-1"
+                        className="mt-2 w-full h-32 p-2 rounded-md text-slate-800"
                       ></textarea>
                     </label>
                   </section>
@@ -675,7 +688,7 @@ function PetDetails() {
                 <div>
                   <div className="px-4 pb-2 flex flex-col items-center md:flex-wrap md:h-full md:flex-row">
                     {imageUrls.length === 0 ? (
-                      <p>No images found</p>
+                      <p className="text-slate-100">No images found</p>
                     ) : (
                       imageUrls.map((imageUrl) => (
                         <img
@@ -716,14 +729,14 @@ function PetDetails() {
                       ))
                     )}
                   </div>
-                  <section className="flex flex-col sm:flex-row p-1 sm:items-center sm:justify-between border border-slate-600 rounded-md">
-                    <p> Upload a new image:</p>
+                  <section className="flex flex-col xl:flex-row p-2 items-center sm:justify-between border-2 border-slate-700 rounded-md">
+                    <p className="text-slate-100 "> Upload a new image:</p>
                     <input
                       className=" hidden"
                       type="file"
                       id="img-input"
                       accept="image/*"
-                      onChange={(e) => setSelectedFile(e.target.files?.[0])}
+                      onChange={(e) => setSelectedImage(e.target.files?.[0])}
                     />
                     <label
                       className="inline-block px-4 py-2 text-white bg-blue-500 rounded cursor-pointer hover:bg-blue-600  w-48 text-center"
@@ -731,8 +744,8 @@ function PetDetails() {
                     >
                       Choose an Image
                     </label>
-                    <span className="text-sm text-gray-600">
-                      {selectedFile?.name}
+                    <span className="text-sm text-slate-100 sm:self-center sm:text-center py-4 p-1">
+                      {selectedImage?.name}
                     </span>
                     <button
                       className="bg-slate-800 text-slate-100 rounded-md px-2 py-2 m-1 w-48"
@@ -795,7 +808,7 @@ function PetDetails() {
                     >
                       Choose a File
                     </label>
-                    <span className="text-sm text-gray-600">
+                    <span className="text-sm text-gray-600  self-center text-center">
                       {selectedFile?.name}
                     </span>
                     <button

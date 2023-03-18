@@ -6,7 +6,12 @@ import { getFirestore, doc, updateDoc, arrayUnion } from "firebase/firestore";
 import { firebaseConfig } from "../../../services/firebase";
 const app = initializeApp(firebaseConfig);
 const auth = getAuth();
-
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faStepBackward,
+  faArrowAltCircleLeft,
+  faCircleArrowLeft,
+} from "@fortawesome/free-solid-svg-icons";
 interface PetData {
   name: string;
   notes: string;
@@ -85,20 +90,18 @@ const AddPetForm = () => {
   };
   return (
     <div
-      className="flex flex-col justify-center items-center
-    bg-slate-700 w-full h-full pt-14"
+      className="flex flex-col justify-center items-center 
+      bg-gradient-to-b from-slate-900  to-slate-700 w-full min-w-screen h-full pt-24"
     >
-      <a
-        className=" text-blue-400 dark:text-blue-200 hover:underline mt-8 text-lg font-semibold self-start pl-8 mb-8"
-        href="/myPets"
-      >
-        Cancel
-      </a>
-
+      <FontAwesomeIcon
+        icon={faCircleArrowLeft}
+        className="text-slate-200 scale-200 self-start pl-4 pb-4 sm:pl-48 md:pl-56 lg:pl-64 cursor-pointer"
+        onClick={() => navigate("/mypets")}
+      />
       <form
         onSubmit={handleSubmit}
         className=" 
-        flex flex-col justify-center items-start rounded-lg w-3/4 pb-16"
+        flex flex-col justify-center items-start rounded-lg sm:w-1/3 pb-16"
       >
         <label className=" text-slate-200 text-md w-full">
           Name:
@@ -150,13 +153,13 @@ const AddPetForm = () => {
         </label>
         <br />
 
-        <label className=" text-slate-200 text-md w-full">
+        <label className=" text-slate-200 text-md w-full h-36">
           Diet:
           <textarea
             typeof="text"
             value={petData.diet}
             onChange={(e) => setPetData({ ...petData, diet: e.target.value })}
-            className=" w-full rounded-lg h-24 shadow-md text-slate-800 p-4"
+            className=" w-full min-h-full rounded-lg shadow-md text-slate-800 p-4 max-h-36"
           ></textarea>
         </label>
         <br />
@@ -174,22 +177,30 @@ const AddPetForm = () => {
         </label>
         <br />
 
-        <label className=" text-slate-200 text-md w-full">
+        <label className=" text-slate-200 text-md w-full h-36">
           Notes:
           <textarea
             typeof="text"
             value={petData.notes}
             onChange={(e) => setPetData({ ...petData, notes: e.target.value })}
-            className=" w-full rounded-lg h-28 shadow-md text-slate-800 p-4"
+            className=" w-full min-h-full rounded-lg shadow-md text-slate-800 p-4 max-h-36"
           ></textarea>
         </label>
         <br />
-        <button
-          className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-12 rounded-lg shadow self-center"
-          type="submit"
-        >
-          Add Pet
-        </button>
+        <section className="w-full flex justify-between">
+          <a
+            className=" text-blue-500 dark:text-blue-400 hover:underline mt-8 text-lg font-semibold self-start pl-8 mb-8 "
+            href="/myPets"
+          >
+            Cancel
+          </a>
+          <button
+            className="bg-blue-500 hover:bg-blue-600 text-white py-2  rounded-lg  self-center w-1/3 shadow-lg"
+            type="submit"
+          >
+            Add Pet
+          </button>
+        </section>
       </form>
     </div>
   );
