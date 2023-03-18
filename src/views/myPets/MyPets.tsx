@@ -21,6 +21,8 @@ interface PetData {
   birthday: Date;
   diet: string;
   gender: string;
+  files?: Array<string>;
+  images?: Array<string>;
 }
 
 const MyPets = () => {
@@ -45,6 +47,8 @@ const MyPets = () => {
             birthday: pet.birthday,
             diet: pet.diet,
             gender: pet.gender,
+            files: pet.files,
+            images: pet.images,
             // Add any other properties you need here
           };
         });
@@ -71,7 +75,12 @@ const MyPets = () => {
       if (auth.currentUser != null || auth.currentUser != undefined)
         if (user) {
           fetchPets(auth.currentUser.uid);
-          navigate("/mypets");
+          const firstImage = await getFirstImageIndexForEachPet(
+            auth.currentUser.uid
+          );
+          console.log(firstImage);
+
+          return firstImage;
         } else {
           console.log(" no user signed in ");
           navigate("/signin");
@@ -80,20 +89,38 @@ const MyPets = () => {
     });
   }, []);
 
-  const toggleEditOverlay = () => {
-    if (editOverlay) {
-      setEditOverlay(false);
-    } else {
-      setEditOverlay(true);
+  async function getFirstImageIndexForEachPet(userUid: string) {
+    const userRef = doc(db, `users/${userUid}`);
+    const userDoc = await getDoc(userRef);
+
+    if (!userDoc.exists()) {
+      console.error("User document does not exist!");
+      return [];
     }
-  };
+
+    const pets = userDoc.data()?.pets ?? [];
+
+    const result: string[] = [];
+
+    for (const pet of pets) {
+      const images = pet.images ?? [];
+
+      if (images.length > 0) {
+        result.push(images[0]); // push the value of the first image for this pet
+      }
+    }
+
+    console.log(result);
+
+    return result;
+  }
 
   return (
     <div className="flex items-center w-full min-h-screen flex-col bg-slate-700 pb-8">
       {pets.length > 0 ? (
-        <div className="flex flex-col items-center w-3/4 h-full mt-28">
+        <div className="flex flex-col items-center w-3/4 sm:w-1/3 h-full mt-28">
           <section className="w-full  flex flex-col justify-center items-center">
-            <h1 className=" text-slate-100 text-xl mb-8 font-semibold">
+            <h1 className=" text-slate-100 text-4xl mb-8 font-semibold">
               My Pets
             </h1>
             {pets.map((pet: PetData) => (
@@ -104,24 +131,20 @@ const MyPets = () => {
                 <PetCard
                   petName={pet.name}
                   image={
-                    <img
-                      className="h-36 w-full object-cover rounded-t-md"
-                      src="https://images.unsplash.com/photo-1583511655826-05700d52f4d9?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=688&q=80"
-                    ></img>
+                    pet.images &&
+                    pet.images.length > 0 && (
+                      <img
+                        className="w-48 h-36 object-cover object-center rounded-t-md"
+                        src={pet.images[0]}
+                      ></img>
+                    )
                   }
                   title={
                     <h1 className="self-center text-lg first-letter:capitalize">
                       {pet.name}
                     </h1>
                   }
-                  icon={
-                    <FaEdit
-                      className="mr-4 self-center"
-                      onClick={() => {
-                        toggleEditOverlay;
-                      }}
-                    />
-                  }
+                  icon={<FaEdit className="mr-4 self-center" />}
                 />
               </section>
             ))}

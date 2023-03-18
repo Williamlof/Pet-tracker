@@ -23,7 +23,7 @@ const PetCard: React.FC<petCardProps> = ({
         navigate(`/mypets/${petName}/`);
       }}
     >
-      <section className="flex justify-start">{image}</section>
+      <section className="flex justify-start w-36 h-full">{image}</section>
 
       {title}
       {action}

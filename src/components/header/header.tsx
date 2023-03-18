@@ -61,32 +61,77 @@ export default function header() {
     });
   }, [isOpen, navigate]);
 
-  useEffect(() => {
-    if (
-      window.location.href.includes("register") ||
-      window.location.href.includes("signin")
-    ) {
-      setHeaderStyle(
-        "fixed h-16 w-full p-2 flex items-center justify-center bg-opacity-0"
-      );
-    } else {
-      setHeaderStyle(
-        "fixed h-16 w-full p-2 flex items-center justify-center bg-gradient-to-r from-blue-400  to-purple-500"
-      );
-    }
-  }, [window.location.href]);
-
   return (
-    <header className={headerStyle}>
-      <nav className="absolute left-4 space-y-2" onClick={toggleNav}>
-        <div className="w-8 h-0.5 bg-gray-600"></div>
-        <div className="w-8 h-0.5 bg-gray-600"></div>
-        <div className="w-8 h-0.5 bg-gray-600"></div>
+    <header className="fixed h-16 w-full p-2 flex justify-center bg-gradient-to-r from-blue-400  to-purple-500 z-20">
+      <nav
+        className="absolute left-4 space-y-2 z-50 md:hidden block pt-3"
+        onClick={toggleNav}
+      >
+        <div className="w-8 h-0.5 bg-amber-100"></div>
+        <div className="w-8 h-0.5 bg-amber-100"></div>
+        <div className="w-8 h-0.5 bg-amber-100"></div>
       </nav>
-      <h1 className=" text-gray-50 text-4xl italic">PetFolio</h1>
+      <div className="hidden md:flex justify-start w-1/6 h-screen absolute left-0 z-10 top-16">
+        <aside className="fixed justify-center items-center w-48 min-h-screen rounded-r-lg">
+          <ul className="flex flex-col items-start text-left pl-4 justify-start pt-12 h-screen w-full space-y-4">
+            <li className="text-2xl text-gray-50 underline">
+              <a className="nav-option cursor-pointer" data-page-path="/home">
+                Home
+              </a>
+            </li>
+            <li className="text-2xl text-gray-50 underline">
+              <a className="nav-option cursor-pointer" data-page-path="/about">
+                About
+              </a>
+            </li>
+            {auth.currentUser?.displayName || auth.currentUser?.email ? (
+              <div className="flex flex-col items-center justify-end space-y-4 h-1/4">
+                <li className="text-2xl text-gray-50 underline">
+                  <a
+                    className="nav-option cursor-pointer"
+                    data-page-path="/mypets"
+                  >
+                    My Pets
+                  </a>
+                </li>
+                <li className="text-2xl text-gray-50 underline">
+                  <a
+                    onClick={() => handleSignOut()}
+                    className="nav-option cursor-pointer"
+                  >
+                    Sign out
+                  </a>
+                </li>
+              </div>
+            ) : (
+              <div className="flex flex-col justify-center space-y-4">
+                <li className="text-2xl text-gray-50 underline">
+                  <a
+                    className="nav-option cursor-pointer"
+                    data-page-path="/signin"
+                  >
+                    Sign in
+                  </a>
+                </li>
+                <li className="text-2xl text-gray-50 underline">
+                  <a
+                    className="nav-option cursor-pointer"
+                    data-page-path="/register"
+                  >
+                    Register
+                  </a>
+                </li>
+              </div>
+            )}
+          </ul>
+        </aside>
+      </div>
+      <h1 className=" text-gray-50 text-4xl italic h-full text-center">
+        PetFolio
+      </h1>
       {isOpen ? (
         <div>
-          <nav className="absolute top-12 right-0 h-screen w-screen bg-gray-900 bg-opacity-1 z-10 uppercase text-white mt-4  focus:ring-4 focus:outline-none focus:ring-[#4285F4]/50 font-medium rounded-lg dark:focus:ring-[#4285F4]/55">
+          <nav className="absolute top-0 right-0 h-screen w-screen bg-gray-900 bg-opacity-1 z-10 uppercase text-white   focus:ring-4 focus:outline-none focus:ring-[#4285F4]/50 font-medium dark:focus:ring-[#4285F4]/55">
             <ul className="flex flex-col items-center justify-center h-full space-y-4">
               <li className="text-2xl text-gray-50 underline">
                 <a className="nav-option" data-page-path="/home">

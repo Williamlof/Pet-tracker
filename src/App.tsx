@@ -10,7 +10,7 @@ import AuthRoute from "./components/AuthRoute/AuthRoute";
 import { Route, Routes, Navigate } from "react-router-dom";
 import SignInPage from "./views/signIn/SignIn";
 import MyPets from "./views/myPets/MyPets";
-
+import "./index.css";
 import { initializeApp } from "firebase/app";
 import { firebaseConfig } from "./services/firebase";
 import AddPet from "./views/myPets/addPet/AddPet";

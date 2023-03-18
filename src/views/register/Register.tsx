@@ -104,73 +104,80 @@ export default function Register() {
   };
 
   return (
-    <div className="bg-[url('./assets/bg-mobile.webp')] w-screen h-screen bg-cover">
-      <div className="flex flex-col items-center justify-center h-full">
-        <div className="bg-[url('./assets/nalle.webp')] bg-cover w-3/4 h-2/6 rounded-full mb-4 shadow-xl"></div>
-        <div className=" bg-gray-600 rounded-md bg-clip-padding-sm bg-opacity-30 border border-gray-100 p-4">
-          <h1 className="text-2xl text-gray-100 font-bold text-center mb-4">
-            Register
+    <div className="bg-gradient-to-b from-slate-900  to-slate-700 w-screen h-screen bg-cover sm:flex sm:items-center sm:justify-center">
+      <div className="flex flex-col items-center justify-center h-full sm:flex-row sm:h-3/5 sm:rounded-lg sm:flex-1 sm:max-w-screen-lg">
+        <div className=" sm:border-b-slate-700 sm:h-full sm:min-h-full sm:flex sm:justify-center sm:p-8 sm:bg-slate-600 sm:flex-col sm:w-3/4 sm:rounded-bl-lg sm:rounded-tl-md shadow-2xl">
+          <h1 className=" hidden sm:flex text-4xl w-3/4  text-slate-100 font-bold leading-11 mb-2">
+            Store your pets information the easy way with
           </h1>
-          <form
-            onSubmit={handleFormSubmit}
-            className="flex flex-col items-center justify-center space-y-4"
-          >
-            <input
-              type="text"
-              name="displayName"
-              value={formData.displayName}
-              onChange={handleInputChange}
-              placeholder="Display name"
-              className="w-80 h-10 rounded-md bg-gray-50 p-2 text-gray-600"
-              required
-            />
-            <input
-              type="text"
-              name="email"
-              value={formData.email}
-              onChange={handleInputChange}
-              placeholder="Email"
-              className="w-80 h-10 rounded-md bg-gray-50 p-2"
-              required
-            />
-            <input
-              type="password"
-              name="password"
-              value={formData.password}
-              onChange={handleInputChange}
-              placeholder="Password (min 8 characters)"
-              className="w-80 h-10 rounded-md bg-gray-50 p-2"
-              minLength={8}
-              required
-            />
-            <input
-              type="password"
-              name="confirmPassword"
-              value={formData.confirmPassword}
-              onChange={handleInputChange}
-              placeholder="Confirm Password"
-              className="w-80 h-10 rounded-md bg-gray-50 p-2"
-              minLength={8}
-              required
-            />
-            <button
-              type="submit"
-              className="w-80 h-10 rounded-md bg-gray-800 text-slate-200"
-            >
-              Register
-            </button>
-          </form>
+          <h2 className="hidden sm:flex text-5xl w-3/4  font-bold leading-11 italic underline underline-offset-8 text-purple-300 ">
+            PetFolio
+          </h2>
+          <div className="bg-[url('./assets/nalle.webp')] bg-cover w-48 h-48 rounded-full my-8 shadow-xl sm:w-72 sm:h-72 sm:mt-0 sm:my-0 self-center"></div>
         </div>
-        <a
-          href="/signin"
-          className=" text-blue-600 dark:text-blue-500 hover:underline mt-8
-          text-lg
-          font-semibold
 
-          "
-        >
-          Already registered? Click here to signin
-        </a>
+        <div className="sm:h-full sm:flex sm:items-center sm:justify-center sm:bg-slate-700 sm:w-2/5 sm:rounded-br-lg sm:rounded-tr-md shadow-2xl">
+          <div className=" bg-gray-600 rounded-md bg-clip-padding-sm bg-opacity-30 border border-gray-100 p-2 sm:p-4 sm:m-8 flex justify-center flex-col items-center">
+            <h1 className="text-2xl text-gray-100 font-bold text-center mb-4">
+              Register
+            </h1>
+            <form
+              onSubmit={handleFormSubmit}
+              className="flex flex-col items-center justify-center space-y-4"
+            >
+              <input
+                type="text"
+                name="displayName"
+                value={formData.displayName}
+                onChange={handleInputChange}
+                placeholder="Display name"
+                className="w-80 h-10 rounded-md bg-gray-50 p-2 text-gray-600"
+                required
+              />
+              <input
+                type="text"
+                name="email"
+                value={formData.email}
+                onChange={handleInputChange}
+                placeholder="Email"
+                className="w-80 h-10 rounded-md bg-gray-50 p-2"
+                required
+              />
+              <input
+                type="password"
+                name="password"
+                value={formData.password}
+                onChange={handleInputChange}
+                placeholder="Password (min 8 characters)"
+                className="w-80 h-10 rounded-md bg-gray-50 p-2"
+                minLength={8}
+                required
+              />
+              <input
+                type="password"
+                name="confirmPassword"
+                value={formData.confirmPassword}
+                onChange={handleInputChange}
+                placeholder="Confirm Password"
+                className="w-80 h-10 rounded-md bg-gray-50 p-2"
+                minLength={8}
+                required
+              />
+              <button
+                type="submit"
+                className="w-80 h-10 mb-8 rounded-md bg-gray-800 text-slate-200"
+              >
+                Register
+              </button>
+            </form>
+            <a
+              href="/signin"
+              className=" text-blue-600 dark:text-blue-500 hover:underline mt-4 text-lg font-semibold"
+            >
+              Already registered? Click here to signin
+            </a>
+          </div>
+        </div>
       </div>
     </div>
   );

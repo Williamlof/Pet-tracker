@@ -11,11 +11,7 @@ type AccordionProps = {
   content: React.ReactNode;
 };
 
-const Accordion: React.FC<AccordionProps> = ({
-  title,
-  content,
-  icon = faCaretDown,
-}) => {
+const Accordion: React.FC<AccordionProps> = ({ title, content, icon }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [caret, setCaret] = useState(faCaretDown);
 
@@ -25,7 +21,7 @@ const Accordion: React.FC<AccordionProps> = ({
   };
 
   return (
-    <div className="h-full w-full mb-4 p-6">
+    <div className="h-full w-full mb-4 p-6 ">
       <section
         className="flex justify-between toggle-accordion"
         onClick={toggleAccordion}
@@ -43,8 +39,10 @@ const Accordion: React.FC<AccordionProps> = ({
           overflow: isOpen ? "visible" : "hidden",
         }}
       >
-        <div className="w-full py-2 px-4 text-gray-700 cursor-pointer text-2xl flex justify-between items-center"></div>
-        {isOpen && <div className="px-4 pb-2 w-full min-h-full">{content}</div>}
+        <div className="w-full py-2 px-2 text-gray-700 cursor-pointer text-2xl flex justify-between items-center"></div>
+        {isOpen && (
+          <div className="px-2 pb-2 w-full h-full flex flex-col">{content}</div>
+        )}
       </article>
     </div>
   );
