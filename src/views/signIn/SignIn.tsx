@@ -9,7 +9,7 @@ import {
   setPersistence,
   browserSessionPersistence,
 } from "firebase/auth";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   addDoc,
   collection,
@@ -125,8 +125,8 @@ const SignInPage: React.FunctionComponent<ISignInPageProps> = (props) => {
           </h2>
           <div className="bg-[url('./assets/nalle.webp')] bg-cover w-48 h-48 rounded-full my-8 shadow-xl sm:w-72 sm:h-72 sm:mt-0 sm:my-0 self-center"></div>
         </div>
-        <div className="sm:h-full sm:flex sm:items-center sm:justify-center sm:bg-slate-700 sm:w-2/5 sm:rounded-br-lg sm:rounded-tr-md shadow-2xl">
-          <div className=" bg-gray-600 rounded-md bg-clip-padding-sm bg-opacity-30 border border-gray-100 p-2 sm:p-4 sm:m-8 flex justify-center flex-col items-center">
+        <div className="sm:h-full sm:flex sm:items-center sm:justify-center sm:bg-slate-700 sm:w-3/5 sm:rounded-br-lg sm:rounded-tr-md shadow-2xl">
+          <div className=" bg-gray-600 rounded-md bg-clip-padding-sm bg-opacity-30 border border-gray-100 p-2 sm:p-4 sm:m-2 flex justify-center flex-col items-center">
             <h1 className="text-2xl text-gray-100 font-bold text-center mb-4 sm:content-none">
               Sign In
             </h1>
@@ -185,12 +185,12 @@ const SignInPage: React.FunctionComponent<ISignInPageProps> = (props) => {
               </svg>
               Sign in with Google
             </button>
-            <a
-              href="/signin"
+            <Link
+              to="/register"
               className=" text-blue-600 dark:text-blue-500 hover:underline mt-4 text-lg font-semibold"
             >
               New user? Register
-            </a>
+            </Link>
           </div>
         </div>
       </div>

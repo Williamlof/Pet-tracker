@@ -6,7 +6,7 @@ import {
   updateDoc,
 } from "@firebase/firestore";
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useParams } from "react-router-dom";
 import { getFirestore } from "firebase/firestore";
 import { initializeApp } from "firebase/app";
@@ -60,11 +60,10 @@ function PetDetails() {
   const [selectedImage, setSelectedImage] = useState<File | null | undefined>(
     null
   );
-  const [imageUrls, setImageUrls] = useState<string[]>([]);
   const [fileObject, setFileObject] = useState<FileData[]>([]);
+  const [imageObject, setImageObject] = useState<FileData[]>([]);
   const [showPopup, setShowPopup] = useState(false);
   const [imageUrl, setImageUrl] = useState<string>("");
-  const [downloadUrl, setDownloadUrl] = useState<string>("");
   const [imageChanged, setImageChanged] = useState(false);
   const [fileChanged, setFileChanged] = useState(false);
   const [deletedImageUrl, setDeletedImageUrl] = useState<string>("");
@@ -378,23 +377,31 @@ function PetDetails() {
     }
 
     const imageUrls = pet.images ?? [];
-    const result: string[] = [];
+    const result: FileData[] = [];
 
     for (const imageUrl of imageUrls) {
       const storageRef = ref(storage, imageUrl);
       try {
+        // Check if the file exists in Firebase Storage
+        const exists = await getMetadata(storageRef)
+          .then(() => true)
+          .catch(() => false);
+
+        if (!exists) {
+          console.warn("File not found in Firebase Storage:", imageUrl);
+          continue;
+        }
+
         const metadata = await getMetadata(storageRef);
-        if (metadata) {
-          const url = await getDownloadURL(storageRef);
-          if (url) {
-            result.push(url); // Change this line to push the download URL instead of the image URL
-          }
+        const url = await getDownloadURL(storageRef);
+        if (url) {
+          const imageName = metadata.name || "";
+          result.push({ url: url, name: imageName });
         }
       } catch (error) {
         console.error(error);
       }
     }
-
     return result;
   }
 
@@ -435,7 +442,11 @@ function PetDetails() {
     return result;
   }
 
-  async function getImageDownloadUrls(petName: string, imageUrl: string) {
+  async function getImageDownloadUrls(
+    petName: string,
+    imageUrl: string,
+    imageName: string
+  ) {
     console.log("getImageDownloadUrls");
     const userUid = getAuth().currentUser!.uid;
 
@@ -461,23 +472,27 @@ function PetDetails() {
       const imageUrls = pet.images ?? [];
 
       if (imageUrls.includes(imageUrl)) {
-        await downloadImage(imageUrl);
+        await downloadImage(imageUrl, imageName);
       } else {
         console.error(`Image URL ${imageUrl} not found in the pet's images!`);
       }
     }
   }
 
-  async function downloadImage(imageUrl: string) {
-    const storageRef = ref(storage, imageUrl);
+  async function downloadImage(imageUrl: string, imageName: string) {
     try {
-      const metadata = await getMetadata(storageRef);
-      if (metadata) {
-        const url = await getDownloadURL(storageRef);
-        if (url) {
-          window.open(url, "_blank"); // Open the download URL in a new tab
-        }
-      }
+      const storageRef = ref(storage, imageUrl);
+      const url = await getDownloadURL(storageRef);
+      const response = await fetch(url);
+      const blob = await response.blob();
+      const blobUrl = URL.createObjectURL(blob);
+
+      const link = document.createElement("a");
+      link.href = blobUrl;
+      link.download = imageName;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
     } catch (error) {
       console.error(error);
     }
@@ -505,6 +520,8 @@ function PetDetails() {
   const deleteImage = async (petName: string, imageUrl: string) => {
     try {
       // Update pet document in Firestore
+      setPopupContent(<p>Deleting image...</p>);
+      triggerPopup("");
       const db = getFirestore();
       const userId = auth.currentUser!.uid;
       const userRef = doc(db, "users", userId);
@@ -525,9 +542,13 @@ function PetDetails() {
         await updateDoc(userRef, { pets: updatedPets });
 
         setDeletedImageUrl(imageUrl);
+        setImageChanged(!imageChanged);
+        setPopupContent(<p>Image deleted sucessfully</p>);
+        setTimeout(() => {
+          closePopup();
+        }, 1000);
       }
       // Close the popup
-      setShowPopup(false);
     } catch (error) {
       console.error(error);
     }
@@ -579,7 +600,7 @@ function PetDetails() {
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
       if (user && name) {
-        getImageUrls(user.uid, name).then((urls) => setImageUrls(urls));
+        getImageUrls(user.uid, name).then((urls) => setImageObject(urls));
         getFileUrls(user.uid, name).then((urls) => setFileObject(urls));
         setTimeout(() => {
           setIsFetching(false);
@@ -598,12 +619,8 @@ function PetDetails() {
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
       if (user && name) {
-        getImageUrls(user.uid, name).then((urls) => setImageUrls(urls));
-
-        // Add a delay before calling getFileUrls
-        setTimeout(() => {
-          getFileUrls(user.uid, name).then((urls) => setFileObject(urls));
-        }, 1000);
+        getImageUrls(user.uid, name).then((urls) => setImageObject(urls));
+        getFileUrls(user.uid, name).then((urls) => setFileObject(urls));
       } else {
         return;
       }
@@ -626,7 +643,8 @@ function PetDetails() {
               </h1>
               <img
                 className="h-32 w-96 rounded-lg object-cover my-4"
-                src={imageUrls[0]}
+                src={imageObject.length > 0 ? imageObject[0].url : ""}
+                alt="pet-image"
               />
             </div>
             <Accordion
@@ -678,12 +696,14 @@ function PetDetails() {
                       ></textarea>
                     </label>
                   </section>
-                  <button
-                    className="bg-slate-800 text-slate-100 rounded-md px-2 py-1 mt-2"
-                    onClick={handleSave}
-                  >
-                    Save
-                  </button>
+                  <section className="flex justify-center">
+                    <button
+                      className="bg-slate-800 text-slate-100 rounded-md px-2 py-2 m-1 w-48"
+                      onClick={handleSave}
+                    >
+                      Save
+                    </button>
+                  </section>
                 </div>
               }
             />
@@ -692,28 +712,28 @@ function PetDetails() {
               content={
                 <div>
                   <div className="px-4 pb-2 flex flex-col items-center md:flex-wrap md:h-full md:flex-row">
-                    {imageUrls.length === 0 ? (
+                    {imageObject.length === 0 ? (
                       <p className="text-slate-100">No images found</p>
                     ) : (
-                      imageUrls.map((imageUrl) => (
+                      imageObject.map((image) => (
                         <img
                           className=" w-48 h-48 object-cover object-center rounded-lg shadow-md my-2 mx-2"
-                          key={imageUrl}
-                          src={imageUrl}
+                          key={image.name}
+                          src={image.url}
                           alt="Pet"
                           onClick={() => {
                             setPopupContent(
                               <article className="max-w-3/4 max-h-3/4 w-full flex flex-col">
                                 <img
-                                  className=" max-w-xs object-contain"
-                                  src={imageUrl}
+                                  className=" object-contain max-w-xs max-h-xs w-full h-full rounded-lg shadow-md my-2 mx-2"
+                                  src={image.url}
                                 />
                                 <section className="flex justify-between w-full">
                                   <button
                                     className="bg-red-500 text-slate-100 rounded-md px-4 py-3 mt-2"
                                     title="This will delete the image from your account. There is no way to undo this action."
                                     onClick={() =>
-                                      deleteImage(pet.name, imageUrl)
+                                      deleteImage(pet.name, image.url)
                                     }
                                   >
                                     Delete image
@@ -722,7 +742,11 @@ function PetDetails() {
                                     className="bg-slate-800 text-slate-100 rounded-md px-4 py-3 mt-2"
                                     title="This will open a new tab where you can download the image by right clicking and selecting 'Save image as...'"
                                     onClick={() => {
-                                      getImageDownloadUrls(pet.name, imageUrl);
+                                      getImageDownloadUrls(
+                                        petName!,
+                                        image.url,
+                                        image.name
+                                      );
                                     }}
                                   >
                                     Download image
@@ -730,7 +754,7 @@ function PetDetails() {
                                 </section>
                               </article>
                             );
-                            triggerPopup(imageUrl);
+                            triggerPopup(image.url);
                           }}
                         />
                       ))
@@ -834,6 +858,13 @@ function PetDetails() {
                 </div>
               }
             />
+            <section>
+              <button className="inline-block px-8 py-4 text-white bg-blue-500 rounded cursor-pointer hover:bg-blue-600 w-76 text-center">
+                <Link to={`/mypets/${name}/weightstatistics`}>
+                  Start tracking {name}'s weight.
+                </Link>
+              </button>
+            </section>
           </div>
         </section>
       </article>

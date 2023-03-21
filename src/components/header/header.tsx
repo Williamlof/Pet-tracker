@@ -1,16 +1,16 @@
 import React from "react";
-import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect, useRef } from "react";
+import { useNavigate, Link } from "react-router-dom";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faUser, faNavicon } from "@fortawesome/free-solid-svg-icons";
 
 export default function header() {
   const auth = getAuth();
   const [isOpen, setIsOpen] = useState<boolean>(false);
-  const [headerStyle, setHeaderStyle] = useState<string>(
-    "fixed h-16 w-full p-2 flex items-center justify-center bg-gradient-to-r from-blue-400  to-purple-500"
-  );
+  const [showList, setShowList] = useState<boolean>(false);
   const [navLoggedIn, setNavLoggedIn] = useState<boolean>(false);
-
+  const listRef = useRef<HTMLUListElement>(null);
   const toggleNav = () => {
     if (isOpen) {
       setIsOpen(false);
@@ -27,7 +27,8 @@ export default function header() {
         .then(() => {
           console.log("User signed out successfully");
           setIsOpen(false);
-          navigate("/signin");
+          setNavLoggedIn(false);
+          setShowList(false);
         })
         .catch((error) => {
           console.error("Error signing out:", error);
@@ -37,30 +38,25 @@ export default function header() {
     }
   }
 
-  function navigateToPage(navigate: any, pagePath: string) {
-    navigate(pagePath);
-    scrollTo(0, 0);
-    setIsOpen(false);
-  }
-
   const navigate = useNavigate();
 
   useEffect(() => {
-    const navOptions = document.querySelectorAll(".nav-option");
-    navOptions.forEach((navOption) => {
-      navOption.addEventListener("click", () => {
-        const pagePath = (navOption as HTMLAnchorElement).dataset.pagePath;
-        if (pagePath) {
-          if (window.location.href.includes(pagePath)) {
-            setIsOpen(false);
-            return;
-          } else {
-            navigateToPage(navigate, pagePath);
-          }
-        }
-      });
-    });
-  }, [isOpen, navigate]);
+    const handleClickOutside = (event: MouseEvent) => {
+      if (listRef.current && !listRef.current.contains(event.target as Node)) {
+        setShowList(false);
+      }
+    };
+
+    if (showList) {
+      document.addEventListener("mousedown", handleClickOutside);
+    } else {
+      document.removeEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [showList]);
 
   useEffect(() => {
     onAuthStateChanged(auth, async (user) => {
@@ -83,102 +79,105 @@ export default function header() {
         <div className="w-8 h-0.5 bg-amber-100"></div>
         <div className="w-8 h-0.5 bg-amber-100"></div>
       </nav>
-      <div className="hidden md:flex justify-start w-1/6 h-screen absolute left-0 z-10 top-16 border-r border-stone-600">
-        <aside className="fixed justify-center items-center w-48 min-h-screen rounded-r-lg">
-          <ul className="flex flex-col items-start text-left pl-4 justify-start pt-12 h-screen w-full space-y-4">
-            <li className="text-2xl text-gray-50 underline transition-all hover:scale-125 hover:translate-x-3 hover:text-blue-400">
-              <a className="nav-option cursor-pointer " data-page-path="/home">
-                Home
-              </a>
-            </li>
-            <li className="text-2xl text-gray-50 underline transition-all hover:scale-125 hover:translate-x-3 hover:text-blue-400">
-              <a className="nav-option cursor-pointer" data-page-path="/about">
-                About
-              </a>
-            </li>
-            {getAuth().currentUser ? (
-              <div className="flex flex-col items-center justify-end space-y-4 h-1/4">
-                <li className="text-2xl text-gray-50 underline transition-all hover:scale-125 hover:translate-x-3 hover:text-blue-400">
-                  <a
-                    className="nav-option cursor-pointer"
-                    data-page-path="/mypets"
-                  >
-                    My Pets
-                  </a>
-                </li>
-                <li className="text-2xl text-gray-50 underline transition-all hover:scale-125 hover:translate-x-3 hover:text-blue-400">
-                  <a
-                    onClick={() => handleSignOut()}
-                    className="nav-option cursor-pointer"
-                  >
-                    Sign out
-                  </a>
-                </li>
-              </div>
-            ) : (
-              <div className="flex flex-col justify-center space-y-4">
-                <li className="text-2xl text-gray-50 underline transition-all hover:scale-125 hover:translate-x-3 hover:text-blue-400">
-                  <a
-                    className="nav-option cursor-pointer"
-                    data-page-path="/signin"
-                  >
-                    Sign in
-                  </a>
-                </li>
-                <li className="text-2xl text-gray-50 underline transition-all hover:scale-125 hover:translate-x-3 hover:text-blue-400">
-                  <a
-                    className="nav-option cursor-pointer"
-                    data-page-path="/register"
-                  >
-                    Register
-                  </a>
-                </li>
-              </div>
-            )}
-          </ul>
-        </aside>
-      </div>
-      <h1 className=" text-gray-50 text-4xl italic h-full text-center">
+
+      <h1 className=" text-gray-50 text-5xl italic h-full text-center">
         PetFolio
       </h1>
+      {navLoggedIn ? (
+        <div className="sm:flex justify-evenly items-center w-2/4 hidden text-slate-200 text-2xl">
+          <Link
+            className="text-2xl text-gray-50 transition-all hover:scale-125 hover:translate-x-3 hover:text-blue-900"
+            to="/home"
+          >
+            Home
+          </Link>
+          <Link
+            className="text-2xl text-gray-50 transition-all hover:scale-125 hover:translate-x-3 hover:text-blue-900"
+            to="/About"
+          >
+            About
+          </Link>
+          <FontAwesomeIcon
+            icon={faUser}
+            className="absolute right-12 top-5 text-2xl hidden sm:flex cursor-pointer text-slate-800"
+            onClick={() => setShowList(!showList)}
+          />
+        </div>
+      ) : (
+        <div className="sm:flex justify-evenly items-center w-3/4 hidden text-slate-200 text-2xl">
+          <Link
+            className="text-2xl text-gray-50 transition-all hover:scale-125 hover:translate-x-3 hover:text-blue-900"
+            to="/home"
+          >
+            Home
+          </Link>
+          <Link
+            className="text-2xl text-gray-50 transition-all hover:scale-125 hover:translate-x-3 hover:text-blue-900"
+            to="/About"
+          >
+            About
+          </Link>
+
+          <Link
+            className="text-2xl text-gray-50 transition-all hover:scale-125 hover:translate-x-3 hover:text-blue-900"
+            to="/Register"
+          >
+            Register
+          </Link>
+          <Link
+            className="text-2xl text-gray-50 transition-all hover:scale-125 hover:translate-x-3 hover:text-blue-900"
+            to="/signin"
+          >
+            Sign In
+          </Link>
+        </div>
+      )}
+
+      {showList && (
+        <ul
+          ref={listRef}
+          className="absolute right-12 top-12 bg-white text-slate-800 border border-slate-300 rounded shadow-md "
+        >
+          <li className="cursor-pointer hover:bg-blue-300 p-4">
+            <Link to="/mypets">My Pets</Link>
+          </li>
+          <li
+            className="cursor-pointer hover:bg-blue-300 p-4"
+            onClick={handleSignOut}
+          >
+            <Link to="/signin">Sign Out</Link>
+          </li>
+        </ul>
+      )}
+
       {isOpen ? (
         <div>
           <nav className="absolute top-0 right-0 h-screen w-screen bg-gray-900 bg-opacity-1 z-10 uppercase text-white   focus:ring-4 focus:outline-none focus:ring-[#4285F4]/50 font-medium dark:focus:ring-[#4285F4]/55">
             <ul className="flex flex-col items-center justify-center h-full space-y-4">
               <li className="text-2xl text-gray-50 underline transition-all hover:scale-125 hover:translate-x-3 hover:text-blue-400">
-                <a className="nav-option" data-page-path="/home">
-                  Home
-                </a>
+                <Link to="/home">Home</Link>
               </li>
               <li className="text-2xl text-gray-50 underline transition-all hover:scale-125 hover:translate-x-3 hover:text-blue-400">
-                <a className="nav-option" data-page-path="/about">
-                  About
-                </a>
+                <Link to="/about">About</Link>
               </li>
               {auth.currentUser?.displayName || auth.currentUser?.email ? (
                 <div className="flex flex-col items-center justify-end space-y-4 h-1/4">
                   <li className="text-2xl text-gray-50 underline transition-all hover:scale-125 hover:translate-x-3 hover:text-blue-400">
-                    <a className="nav-option" data-page-path="/mypets">
-                      My Pets
-                    </a>
+                    <Link to="/mypets">My pets</Link>
                   </li>
                   <li className="text-2xl text-gray-50 underline transition-all hover:scale-125 hover:translate-x-3 hover:text-blue-400">
-                    <a onClick={() => handleSignOut()} className="nav-option">
-                      Sign out
-                    </a>
+                    <Link to="/signin" onClick={handleSignOut}>
+                      Sign Out
+                    </Link>
                   </li>
                 </div>
               ) : (
                 <div className="flex flex-col items-center justify-center space-y-4">
                   <li className="text-2xl text-gray-50 underline transition-all hover:scale-125 hover:translate-x-3 hover:text-blue-400">
-                    <a className="nav-option" data-page-path="/signin">
-                      Sign in
-                    </a>
+                    <Link to="/signin">Sign in</Link>
                   </li>
                   <li className="text-2xl text-gray-50 underline transition-all hover:scale-125 hover:translate-x-3 hover:text-blue-400">
-                    <a className="nav-option" data-page-path="/register">
-                      Register
-                    </a>
+                    <Link to="/register">Register</Link>
                   </li>
                 </div>
               )}

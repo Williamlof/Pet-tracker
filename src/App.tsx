@@ -14,12 +14,13 @@ import { initializeApp } from "firebase/app";
 import { firebaseConfig } from "./services/firebase";
 import AddPet from "./views/myPets/addPet/AddPet";
 import PetDetails from "./views/PetDetails/PetDetails";
+import WeightStatistics from "./views/weightStatistics/WeightStatistics";
 
 initializeApp(firebaseConfig);
 
 const App: React.FC = () => {
   return (
-    <div className=" h-full w-full">
+    <div className=" h-full w-full bg-gradient-to-b from-slate-900 to-slate-700 ">
       <Header />
 
       <Routes>
@@ -41,6 +42,10 @@ const App: React.FC = () => {
         <Route path="/mypets/addPet" element={<AddPet />} />
 
         <Route path="/mypets/:petName" element={<PetDetails />} />
+        <Route
+          path="/mypets/:petName/weightstatistics"
+          element={<WeightStatistics />}
+        />
       </Routes>
     </div>
   );

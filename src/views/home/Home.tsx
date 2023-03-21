@@ -12,7 +12,7 @@ export default function Home() {
     <div className=" bg-gradient-to-b from-slate-900  to-slate-700 flex justify-evenly items-center flex-col-reverse sm:flex-row pt-24 min-h-screen">
       <div className="h-full bg-cover bg-center flex flex-col items-center sm:w-1/3 sm:justify-center">
         <h1
-          className={`text-5xl font-bold mb-14 text-slate-100 sm:text-7xl text-center leading-relaxed ${
+          className={`text-5xl font-bold mb-8 text-slate-100 lg:text-8xl text-center leading-relaxed ${
             isLoaded ? "animate-fade-slide-in delay-100" : "hidden"
           }`}
         >
@@ -45,9 +45,9 @@ export default function Home() {
           </a>
         </section>
       </div>
-      <div className=" sm:h-full sm:flex sm:items-center justify-center top-40 sm:static">
+      <div className="sm:h-full sm:flex sm:items-center justify-center top-40 sm:static">
         <svg
-          className="w-20 h-20 scale-200 sm:scale-300 md:scale-400 lg:scale-600"
+          className="w-20 h-20 scale-200 sm:scale-300 md:scale-400 lg:scale-600 xl:animate-wiggle"
           fill="black"
           fillRule="evenodd"
         >

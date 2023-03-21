@@ -23,7 +23,16 @@ module.exports = {
       '400': '4',
       '500': '5',
       '600': '6',
+    }, animation: {
+      wiggle: 'wiggle 2s ease-in-out infinite',
     },
+    keyframes: {
+      wiggle: {
+        '0%, 100%': { transform: 'rotate(-5deg)', scale: '600%', },
+        '50%': { transform: 'rotate(5deg)', scale: '600%', },
+      },
+    },
+
   },
 
   plugins: [

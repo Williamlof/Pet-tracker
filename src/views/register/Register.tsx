@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { initializeApp } from "firebase/app";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import "firebase/auth";
 import { firebaseConfig } from "../../services/firebase";
 import {
@@ -115,15 +115,14 @@ export default function Register() {
           </h2>
           <div className="bg-[url('./assets/nalle.webp')] bg-cover w-48 h-48 rounded-full my-8 shadow-xl sm:w-72 sm:h-72 sm:mt-0 sm:my-0 self-center"></div>
         </div>
-
-        <div className="sm:h-full sm:flex sm:items-center sm:justify-center sm:bg-slate-700 sm:w-2/5 sm:rounded-br-lg sm:rounded-tr-md shadow-2xl">
-          <div className=" bg-gray-600 rounded-md bg-clip-padding-sm bg-opacity-30 border border-gray-100 p-2 sm:p-4 sm:m-8 flex justify-center flex-col items-center">
+        <div className="sm:h-full sm:flex sm:items-center sm:justify-center sm:bg-slate-700 sm:w-3/5 sm:rounded-br-lg sm:rounded-tr-md shadow-2xl">
+          <div className=" bg-gray-600 rounded-md bg-clip-padding-sm bg-opacity-30 border border-gray-100 p-2 sm:p-4 sm:m-2 flex justify-center flex-col items-center">
             <h1 className="text-2xl text-gray-100 font-bold text-center mb-4">
               Register
             </h1>
             <form
               onSubmit={handleFormSubmit}
-              className="flex flex-col items-center justify-center space-y-4"
+              className="flex flex-col items-center space-y-4 justify-center w-full"
             >
               <input
                 type="text"
@@ -131,7 +130,7 @@ export default function Register() {
                 value={formData.displayName}
                 onChange={handleInputChange}
                 placeholder="Display name"
-                className="w-80 h-10 rounded-md bg-gray-50 p-2 text-gray-600"
+                className=" w-80 h-10 rounded-md bg-gray-50 p-2 text-gray-600"
                 required
               />
               <input
@@ -140,7 +139,7 @@ export default function Register() {
                 value={formData.email}
                 onChange={handleInputChange}
                 placeholder="Email"
-                className="w-80 h-10 rounded-md bg-gray-50 p-2"
+                className="w-80 h-10 rounded-md bg-gray-50 p-2 text-gray-600"
                 required
               />
               <input
@@ -149,7 +148,7 @@ export default function Register() {
                 value={formData.password}
                 onChange={handleInputChange}
                 placeholder="Password (min 8 characters)"
-                className="w-80 h-10 rounded-md bg-gray-50 p-2"
+                className="w-80 h-10 rounded-md bg-gray-50 p-2 text-gray-600"
                 minLength={8}
                 required
               />
@@ -159,23 +158,24 @@ export default function Register() {
                 value={formData.confirmPassword}
                 onChange={handleInputChange}
                 placeholder="Confirm Password"
-                className="w-80 h-10 rounded-md bg-gray-50 p-2"
+                className="w-80 h-10 rounded-md bg-gray-50 p-2 text-gray-600"
                 minLength={8}
                 required
               />
               <button
                 type="submit"
-                className="w-80 h-10 mb-8 rounded-md bg-gray-800 text-slate-200"
+                className="w-10/12 h-10 mb-8 rounded-md bg-gray-800 text-slate-200"
               >
                 Register
               </button>
             </form>
-            <a
-              href="/signin"
+
+            <Link
+              to="/signin"
               className=" text-blue-600 dark:text-blue-500 hover:underline mt-4 text-lg font-semibold"
             >
-              Already registered? Click here to signin
-            </a>
+              Already have an account? Sign in
+            </Link>
           </div>
         </div>
       </div>
