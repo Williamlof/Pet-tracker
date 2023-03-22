@@ -1,17 +1,14 @@
 import React, { useState } from "react";
 import { initializeApp } from "firebase/app";
 import { useNavigate } from "react-router-dom";
-import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { getAuth } from "firebase/auth";
 import { getFirestore, doc, updateDoc, arrayUnion } from "firebase/firestore";
 import { firebaseConfig } from "../../../services/firebase";
 const app = initializeApp(firebaseConfig);
 const auth = getAuth();
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faStepBackward,
-  faArrowAltCircleLeft,
-  faCircleArrowLeft,
-} from "@fortawesome/free-solid-svg-icons";
+import { faCircleArrowLeft } from "@fortawesome/free-solid-svg-icons";
+
 interface PetData {
   name: string;
   notes: string;
@@ -20,6 +17,9 @@ interface PetData {
   birthday: string;
   diet: string;
   gender: string;
+  files: string[];
+  images: string[];
+  weightData: { weight: number; date: string }[];
 }
 
 const AddPetForm = () => {
@@ -32,22 +32,9 @@ const AddPetForm = () => {
     birthday: "",
     diet: "",
     gender: "",
-  });
-
-  // Add a listener to check if a user is authenticated
-  onAuthStateChanged(auth, (user) => {
-    if (user) {
-      const db = getFirestore(app);
-      // User is signed in, see docs for a list of available properties
-      // https://firebase.google.com/docs/reference/js/firebase.User
-      console.log("User is signed in");
-      console.log(auth.currentUser!.uid);
-    } else {
-      // User is signed out
-      console.log("User is signed out");
-
-      // ...
-    }
+    files: [],
+    images: [],
+    weightData: [],
   });
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -60,6 +47,9 @@ const AddPetForm = () => {
       birthday: "",
       diet: "",
       gender: "",
+      files: [],
+      images: [],
+      weightData: [],
     });
 
     const db = getFirestore(app);
@@ -81,6 +71,14 @@ const AddPetForm = () => {
           birthday: petData.birthday,
           diet: petData.diet,
           gender: petData.gender,
+          files: petData.files,
+          images: petData.images,
+          weightData: [
+            {
+              weight: petData.weight,
+              date: new Date().toISOString().slice(0, 10),
+            },
+          ],
         }),
       });
       navigate("/mypets");
@@ -98,6 +96,9 @@ const AddPetForm = () => {
         className="text-slate-200 scale-200 self-start pl-4 pb-4 sm:pl-48 md:pl-56 lg:pl-64 cursor-pointer"
         onClick={() => navigate("/mypets")}
       />
+      <h1 className=" text-slate-100 text-4xl font-bold mb-8 text-center">
+        Fill in your pets information
+      </h1>
       <form
         onSubmit={handleSubmit}
         className=" 
@@ -145,6 +146,7 @@ const AddPetForm = () => {
           <input
             className=" w-full rounded-lg h-10 shadow-md text-slate-800 p-4"
             type="number"
+            step={0.5}
             value={petData.weight}
             onChange={(e) =>
               setPetData({ ...petData, weight: Number(e.target.value) })
@@ -171,8 +173,8 @@ const AddPetForm = () => {
             className=" w-full rounded-lg h-10 shadow-md text-slate-800 px-4"
           >
             <option value="">Select a gender</option>
-            <option value="male">Male</option>
-            <option value="female">Female</option>
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
           </select>
         </label>
         <br />

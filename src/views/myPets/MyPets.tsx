@@ -23,11 +23,11 @@ interface PetData {
   gender: string;
   files?: Array<string>;
   images?: Array<string>;
+  weightData?: Array<{ date: Date; weight: number }>;
 }
 
 const MyPets = () => {
   const [pets, setPets] = useState<Array<PetData>>([]);
-  const [editOverlay, setEditOverlay] = useState<boolean>(false);
   const navigate = useNavigate();
 
   // a function that will fetch all pets from the firestore database
@@ -49,6 +49,7 @@ const MyPets = () => {
             gender: pet.gender,
             files: pet.files,
             images: pet.images,
+            weightData: pet.weightData,
             // Add any other properties you need here
           };
         });
@@ -116,17 +117,17 @@ const MyPets = () => {
   }
 
   return (
-    <div className="flex items-center w-full min-h-screen flex-col bg-gradient-to-b from-slate-900  to-slate-700 pb-8">
+    <div className="flex items-center w-full min-h-screen flex-col bg-gradient-to-b from-slate-900 to-slate-700 pb-8">
       {pets.length > 0 ? (
         <div className="flex flex-col items-center w-3/4 sm:w-1/3 h-full mt-28">
-          <section className="w-full  flex flex-col justify-center items-center">
-            <h1 className=" text-slate-100 text-4xl mb-8 font-semibold">
+          <section className="w-full flex flex-col justify-center items-center">
+            <h1 className="text-slate-100 text-4xl mb-8 font-semibold">
               My Pets
             </h1>
             {pets.map((pet: PetData) => (
               <section
                 key={pet.name}
-                className="h-full w-full bg-slate-200 rounded-md flex justify-between mb-4"
+                className="h-full w-full bg-slate-200 rounded-md flex justify-between mb-4 sm:hover:scale-110 sm:hover:bg-blue-300 transition duration-300 ease-in-out"
               >
                 <PetCard
                   petName={pet.name}
@@ -161,13 +162,13 @@ const MyPets = () => {
           </section>
         </div>
       ) : (
-        <div className="h-full flex flex-col gap-10 mt-36">
-          <p className=" text-slate-100 text-xl sm:text-4xl">
+        <div className="h-full flex flex-col gap-10 mt-36 items-center">
+          <p className="text-slate-100 text-xl sm:text-4xl">
             You haven't added any pets yet!
           </p>
 
-          <p className=" text-slate-100 text-xl">
-            Click the button below to add your first pet.
+          <p className="text-slate-100 text-xl">
+            Click the button to add your first pet.
           </p>
           <section className="flex justify-center items-end">
             <button

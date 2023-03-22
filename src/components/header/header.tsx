@@ -155,15 +155,21 @@ export default function header() {
           <nav className="absolute top-0 right-0 h-screen w-screen bg-gray-900 bg-opacity-1 z-10 uppercase text-white   focus:ring-4 focus:outline-none focus:ring-[#4285F4]/50 font-medium dark:focus:ring-[#4285F4]/55">
             <ul className="flex flex-col items-center justify-center h-full space-y-4">
               <li className="text-2xl text-gray-50 underline transition-all hover:scale-125 hover:translate-x-3 hover:text-blue-400">
-                <Link to="/home">Home</Link>
+                <Link to="/home" onClick={toggleNav}>
+                  Home
+                </Link>
               </li>
               <li className="text-2xl text-gray-50 underline transition-all hover:scale-125 hover:translate-x-3 hover:text-blue-400">
-                <Link to="/about">About</Link>
+                <Link to="/about" onClick={toggleNav}>
+                  About
+                </Link>
               </li>
               {auth.currentUser?.displayName || auth.currentUser?.email ? (
                 <div className="flex flex-col items-center justify-end space-y-4 h-1/4">
                   <li className="text-2xl text-gray-50 underline transition-all hover:scale-125 hover:translate-x-3 hover:text-blue-400">
-                    <Link to="/mypets">My pets</Link>
+                    <Link to="/mypets" onClick={toggleNav}>
+                      My pets
+                    </Link>
                   </li>
                   <li className="text-2xl text-gray-50 underline transition-all hover:scale-125 hover:translate-x-3 hover:text-blue-400">
                     <Link to="/signin" onClick={handleSignOut}>
@@ -174,10 +180,14 @@ export default function header() {
               ) : (
                 <div className="flex flex-col items-center justify-center space-y-4">
                   <li className="text-2xl text-gray-50 underline transition-all hover:scale-125 hover:translate-x-3 hover:text-blue-400">
-                    <Link to="/signin">Sign in</Link>
+                    <Link to="/signin" onClick={toggleNav}>
+                      Sign in
+                    </Link>
                   </li>
                   <li className="text-2xl text-gray-50 underline transition-all hover:scale-125 hover:translate-x-3 hover:text-blue-400">
-                    <Link to="/register">Register</Link>
+                    <Link to="/register" onClick={toggleNav}>
+                      Register
+                    </Link>
                   </li>
                 </div>
               )}

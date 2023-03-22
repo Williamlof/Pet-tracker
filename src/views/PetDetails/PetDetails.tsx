@@ -40,6 +40,9 @@ type PetData = {
   birthday: Date;
   diet: string;
   gender: string;
+  files: string[];
+  images: string[];
+  weightData: Array<{ date: Date; weight: number }>;
   [key: string]: any; // Add an index signature to allow for any other properties
 };
 
@@ -70,12 +73,17 @@ function PetDetails() {
   const [isFetching, setIsFetching] = useState(true);
   const [deletedFileUrl, setDeletedFileUrl] = useState<string>("");
   const [popupContent, setPopupContent] = useState<React.ReactNode>(<></>);
+  const [background, setBackground] = useState<string>("bg-slate-100");
   const triggerPopup = (imageUrl: string) => {
+    if (imageUrl !== "") {
+      setBackground("");
+    }
     setShowPopup(true);
     setImageUrl(imageUrl);
   };
   const closePopup = () => {
     setShowPopup(false);
+    setBackground("bg-slate-100");
     setImageUrl("");
   };
   const navigate = useNavigate();
@@ -107,7 +115,7 @@ function PetDetails() {
       gender: pet.gender,
       images: pet.images,
       files: pet.files,
-      // Add any other properties you need here
+      weightData: pet.weightData,
     };
     setPet(petObj);
   };
@@ -122,7 +130,7 @@ function PetDetails() {
   };
   const handleSave = async () => {
     triggerPopup("");
-    setPopupContent(<p>Saving...</p>);
+    setPopupContent(<p className="text-3xl">Saving...</p>);
     onAuthStateChanged(auth, async (user) => {
       if (!auth.currentUser) {
         return;
@@ -135,16 +143,11 @@ function PetDetails() {
       if (petsData && petsData.pets) {
         const updatedPets = petsData.pets.map((p: { name: string }) => {
           if (p.name === pet.name) {
+            // Update only the notes and diet properties of the pet
             return {
-              name: pet.name,
-              breed: pet.breed,
-              weight: pet.weight,
-              birthday: pet.birthday,
-              gender: pet.gender,
-              notes: pet.notes,
-              images: pet.images,
-              files: pet.files,
-              diet: pet.diet,
+              ...p, // Keep all the original properties
+              notes: pet.notes, // Update the notes property
+              diet: pet.diet, // Update the diet property
             };
           } else {
             return p;
@@ -153,7 +156,7 @@ function PetDetails() {
 
         await updateDoc(petsRef, { pets: updatedPets });
 
-        setPopupContent(<p>Pet information updated!</p>);
+        setPopupContent(<p className="text-3xl">Pet information updated!</p>);
 
         setTimeout(closePopup, 1000);
       } else {
@@ -268,7 +271,7 @@ function PetDetails() {
       });
 
       const fileUrl = await getDownloadURL(fileRef);
-      console.log("Uploaded file URL:", fileUrl);
+
       const userRef = doc(db, `users/${user.uid}`);
       const userDoc = await getDoc(userRef);
 
@@ -294,7 +297,6 @@ function PetDetails() {
 
       pets[petIndex] = updatedPet;
       await setDoc(userRef, { pets }, { merge: true });
-      console.log("Updated data in Firestore:", (await getDoc(userRef)).data());
       setSelectedFile(null);
       setSelectedImage(null);
       onUploadComplete();
@@ -415,7 +417,6 @@ function PetDetails() {
     const fileUrls = pet.files ?? [];
     const result: FileData[] = [];
     for (const fileUrl of fileUrls) {
-      console.log("File URL from Firestore:", fileUrl);
       const storageRef = ref(storage, fileUrl);
 
       try {
@@ -447,7 +448,6 @@ function PetDetails() {
     imageUrl: string,
     imageName: string
   ) {
-    console.log("getImageDownloadUrls");
     const userUid = getAuth().currentUser!.uid;
 
     if (userUid !== null || userUid !== undefined) {
@@ -556,7 +556,6 @@ function PetDetails() {
 
   const deleteFile = async (petName: string, fileUrl: string) => {
     try {
-      console.log("deleteFile");
       triggerPopup("");
       setPopupContent(<p>Deleting file...</p>);
       // Update pet document in Firestore
@@ -583,7 +582,6 @@ function PetDetails() {
         await deleteObject(fileRef);
 
         setDeletedFileUrl(fileUrl);
-        console.log("deletedFileUrl: " + deletedFileUrl);
       }
       // Close the popup
 
@@ -641,11 +639,17 @@ function PetDetails() {
               <h1 className="text-2xl font-semibold text-slate-100 pt-4 first-letter:capitalize">
                 {petName}
               </h1>
-              <img
-                className="h-32 w-96 rounded-lg object-cover my-4"
-                src={imageObject.length > 0 ? imageObject[0].url : ""}
-                alt="pet-image"
-              />
+              {imageObject.length > 0 ? (
+                <img
+                  className="h-32 w-80 rounded-lg object-cover my-4"
+                  src={imageObject.length > 0 ? imageObject[0].url : ""}
+                  alt="pet-image"
+                />
+              ) : (
+                <p className="text-slate-200 text-xl">
+                  Upload an image to see it here
+                </p>
+              )}
             </div>
             <Accordion
               title="Information"
@@ -723,14 +727,17 @@ function PetDetails() {
                           alt="Pet"
                           onClick={() => {
                             setPopupContent(
-                              <article className="max-w-3/4 max-h-3/4 w-full flex flex-col">
-                                <img
-                                  className=" object-contain max-w-xs max-h-xs w-full h-full rounded-lg shadow-md my-2 mx-2"
-                                  src={image.url}
-                                />
+                              <article className=" max-h-full w-full flex flex-col self-center justify-center">
+                                <section className="self-center">
+                                  <img
+                                    className=" object-contain rounded-lg shadow-md max-h-480 sm:max-h-none"
+                                    src={image.url}
+                                  />
+                                </section>
+
                                 <section className="flex justify-between w-full">
                                   <button
-                                    className="bg-red-500 text-slate-100 rounded-md px-4 py-3 mt-2"
+                                    className="bg-red-500 text-slate-100 rounded-md px-2 py-2 mt-2 text-sm"
                                     title="This will delete the image from your account. There is no way to undo this action."
                                     onClick={() =>
                                       deleteImage(pet.name, image.url)
@@ -739,8 +746,8 @@ function PetDetails() {
                                     Delete image
                                   </button>
                                   <button
-                                    className="bg-slate-800 text-slate-100 rounded-md px-4 py-3 mt-2"
-                                    title="This will open a new tab where you can download the image by right clicking and selecting 'Save image as...'"
+                                    className="rounded-md px-2 py-2 mt-2 text-sm
+                               text-white bg-blue-500  cursor-pointer hover:bg-blue-600 w-48 text-center"
                                     onClick={() => {
                                       getImageDownloadUrls(
                                         petName!,
@@ -775,8 +782,8 @@ function PetDetails() {
                     >
                       Choose an Image
                     </label>
-                    <span className="text-sm text-slate-100 sm:self-center sm:text-center py-4 p-1">
-                      {selectedImage?.name}
+                    <span className="text-sm w-36 text-slate-100 text-ellipsis">
+                      {selectedImage?.name.slice(0, 15).concat("...")}
                     </span>
                     <button
                       className="bg-slate-800 text-slate-100 rounded-md px-2 py-2 m-1 w-48"
@@ -793,7 +800,7 @@ function PetDetails() {
               content={
                 <div className=" pb-2">
                   {fileObject.length === 0 || isFetching ? (
-                    <p className="p-4">No files found</p>
+                    <p className="p-4 text-lg text-slate-200">No files found</p>
                   ) : (
                     fileObject.map((file: any) => (
                       <div
@@ -805,22 +812,22 @@ function PetDetails() {
                             icon={faFile}
                             className="p-1 h-12 w-12 text-slate-400"
                           />
-                          <span className="text-sm w-36 text-slate-100">
+                          <span className="text-sm w-32 sm:w-16 md:w-52 lg:w-64 xl:w-full text-slate-100 overflow-hidden whitespace-nowrap overflow-ellipsis">
                             {file.name}
                           </span>
                         </section>
-                        <section className="sm:block">
+                        <section className="flex flex-col sm:block">
                           <button
-                            className=" bg-red-500 text-slate-100 rounded-md h-3/4 w-full my-2 py-2"
+                            className=" bg-red-500 text-slate-100 rounded-md sm:h-3/4 sm:w-full my-2 py-2 px-2"
                             onClick={() => deleteFile(pet.name, file.url)}
                           >
-                            Delete file
+                            Delete
                           </button>
                           <button
-                            className="bg-slate-800 text-slate-100 rounded-md h-3/4 w-full py-2 mb-2"
+                            className="bg-slate-800 text-slate-100 rounded-md sm:h-3/4 sm:w-full py-2 mb-2 px-2"
                             onClick={() => downloadFile(file.name, file.url)}
                           >
-                            Download file
+                            Download
                           </button>
                         </section>
                       </div>
@@ -832,7 +839,7 @@ function PetDetails() {
                       type="file"
                       id="file-input"
                       className="hidden"
-                      accept="file_extension txt doc docx pdf xls xlsx csv zip rar 7z gz tar tar.gz tar.bz2 tar.xz "
+                      accept=".txt, .doc, .docx, application/msword, application/vnd.openxmlformats-officedocument.wordprocessingml.document, application/pdf, .xls, .xlsx, application/vnd.ms-excel, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, text/csv, application/zip, application/x-rar-compressed, application/x-7z-compressed, application/gzip, application/x-tar, application/x-gtar, application/x-gzip, application/x-bzip2, application/x-xz"
                       onChange={(e) => setSelectedFile(e.target.files?.[0])}
                     />
                     <label
@@ -841,9 +848,19 @@ function PetDetails() {
                     >
                       Choose a File
                     </label>
-                    <span className="text-md text-slate-100  self-center text-center my-2 p-1 border rounded-md">
-                      {selectedFile?.name}
-                    </span>
+                    <section className="text-sm w-36 h-36 text-slate-100 flex items-center justify-center">
+                      <span
+                        className=" overflow-hidden whitespace-nowrap overflow-ellipsis"
+                        style={{
+                          textOverflow: "ellipsis",
+                          whiteSpace: "nowrap",
+                          overflow: "hidden",
+                        }}
+                      >
+                        {selectedFile?.name}
+                      </span>
+                    </section>
+
                     <button
                       className="bg-slate-800 text-slate-200 rounded-md px-2 py-2 m-1 w-48"
                       onClick={() =>
@@ -868,7 +885,13 @@ function PetDetails() {
           </div>
         </section>
       </article>
-      {showPopup ? <Popup onClose={closePopup} content={popupContent} /> : null}
+      {showPopup ? (
+        <Popup
+          onClose={closePopup}
+          content={popupContent}
+          background={background}
+        />
+      ) : null}
     </div>
   );
 }

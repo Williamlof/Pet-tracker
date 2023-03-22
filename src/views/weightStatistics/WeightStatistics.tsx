@@ -34,45 +34,21 @@ export default function WeightStatistics() {
   const navigate = useNavigate();
   const name = useParams().petName;
   const [weightData, setWeightData] = useState([]);
-
-  useEffect(() => {
-    onAuthStateChanged(auth, (user) => {
-      if (!user) {
-        navigate("/signin");
-      }
-    });
-    const fetchWeightData = async () => {
-      const petName = name;
-      // Get the logged-in user's UID
-      const userId = auth.currentUser?.uid;
-      if (userId !== null && userId !== undefined) {
-        console.log("User ID found, fetching weight data...");
-
-        const userDocRef = doc(db, "users", userId);
-        const userDocSnap = await getDoc(userDocRef);
-
-        if (userDocSnap.exists()) {
-          const pets = userDocSnap.data().pets || [];
-          const pet = pets.find((pet: { name: string }) => pet.name === name);
-
-          if (pet && pet.weightData) {
-            setWeightData(pet.weightData);
-          } else {
-            setWeightData([]);
-          }
-        } else {
-          console.error("User's document does not exist");
-        }
-      } else {
-        console.error("Name is undefined");
-      }
-    };
-
-    fetchWeightData();
-  }, [name]);
+  const [popupContent, setPopupContent] = useState<React.ReactNode>(<></>);
+  const [showPopup, setShowPopup] = useState(false);
+  const [background, setBackground] = useState<string>("bg-slate-100");
+  const [fetchDataTrigger, setFetchDataTrigger] = useState(false);
+  const triggerPopup = () => {
+    setShowPopup(true);
+  };
+  const closePopup = () => {
+    setShowPopup(false);
+  };
 
   const handleDataInput = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setPopupContent(<p className="self-center text-4xl">Adding new data...</p>);
+    triggerPopup();
     const date = e.currentTarget.date.value;
     let weight = e.currentTarget.weight.value;
     weight = weight.replace(",", ".");
@@ -119,22 +95,86 @@ export default function WeightStatistics() {
 
           // Update the user's document with the modified pets array
           await updateDoc(userDocRef, { pets });
+          setPopupContent(
+            <p className="self-center text-4xl">Data added successfully!</p>
+          );
+          setTimeout(() => {
+            closePopup();
+            setFetchDataTrigger(true);
+          }, 1000);
         } else {
           // Handle the case where the user's document does not exist
+          setPopupContent(
+            <p className="self-center text-4xl">
+              Something went wrong, please try again
+            </p>
+          );
           console.error("User's document does not exist");
         }
       } else {
         // Handle the case where 'name' is undefined
+        setPopupContent(
+          <p className="self-center text-4xl">
+            Something went wrong, please try again
+          </p>
+        );
         console.error("Name is undefined");
       }
     }
   };
+
+  useEffect(() => {
+    onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        navigate("/signin");
+      }
+    });
+    const fetchWeightData = async () => {
+      const petName = name;
+
+      const userId = auth.currentUser?.uid;
+
+      if (userId !== null && userId !== undefined) {
+        const userDocRef = doc(db, "users", userId);
+        const userDocSnap = await getDoc(userDocRef);
+
+        if (userDocSnap.exists()) {
+          const pets = (await userDocSnap.data().pets) || [];
+          const pet = await pets.find(
+            (pet: { name: string }) => pet.name === petName
+          );
+
+          if (pet && pet.weightData) {
+            setWeightData(pet.weightData);
+          }
+        } else {
+          console.error("User's document does not exist");
+        }
+      }
+    };
+    setTimeout(() => {
+      triggerPopup();
+      setPopupContent(<p className="self-center text-4xl">Loading graph...</p>);
+      fetchWeightData();
+      setTimeout(() => {
+        closePopup();
+      }, 1250);
+    }, 1000);
+
+    if (fetchDataTrigger) {
+      // Reset the fetchDataTrigger state to false after fetching the data
+      setFetchDataTrigger(false);
+    }
+  }, [auth, name, fetchDataTrigger]);
+
   return (
     <div className="w-full pt-20 bg-gradient-to-b from-slate-900 to-slate-700 sm:flex sm:justify-center">
       <div className="flex flex-col items-center justify-center px-4 py-8 sm:w-3/4 ">
         <h1 className="text-2xl text-white mb-4">
           Weight Statistics for {name}
         </h1>
+
+        <WeightGraph data={weightData} />
         <div className="flex border my-4 p-4 rounded w-full sm:w-2/4">
           <form
             action="addData"
@@ -149,6 +189,8 @@ export default function WeightStatistics() {
               <input
                 type="date"
                 name="date"
+                defaultValue={new Date().toISOString().slice(0, 10)}
+                required
                 className=" w-full rounded-lg h-10 shadow-md text-slate-800 p-4"
               />
             </section>
@@ -161,6 +203,8 @@ export default function WeightStatistics() {
               </label>
               <input
                 type="number"
+                step="0.5"
+                required
                 name="weight"
                 className=" w-full rounded-lg h-10 shadow-md text-slate-800 p-4"
               />
@@ -174,7 +218,13 @@ export default function WeightStatistics() {
             </button>
           </form>
         </div>
-        <WeightGraph data={weightData} />
+        {showPopup && (
+          <Popup
+            onClose={closePopup}
+            content={popupContent}
+            background={background}
+          />
+        )}
       </div>
     </div>
   );

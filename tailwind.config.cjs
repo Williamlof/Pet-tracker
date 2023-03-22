@@ -9,6 +9,11 @@ module.exports = {
     fontFamily: {
       sans: ["Roboto", "sans-serif"],
     },
+    maxHeight: {
+      none: "none",
+      480: "30rem",
+
+    },
     scale: {
       '0': '0',
       '50': '.5',
