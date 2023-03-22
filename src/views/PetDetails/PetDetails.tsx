@@ -614,22 +614,6 @@ function PetDetails() {
     };
   }, [auth, name, imageChanged, fileChanged]);
 
-  useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((user) => {
-      if (user && name) {
-        getImageUrls(user.uid, name).then((urls) => setImageObject(urls));
-        getFileUrls(user.uid, name).then((urls) => setFileObject(urls));
-      } else {
-        return;
-      }
-    });
-
-    // Cleanup function to unsubscribe from the listener when the component is unmounted
-    return () => {
-      unsubscribe();
-    };
-  }, [auth, name, imageChanged, fileChanged]);
-
   return (
     <div className=" min-h-screen h-full w-full pt-20 bg-gradient-to-b from-slate-900  to-slate-700">
       <article className=" flex flex-col items-center pb-8 ">
