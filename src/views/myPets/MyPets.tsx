@@ -141,7 +141,7 @@ const MyPets = () => {
                     )
                   }
                   title={
-                    <p className="self-center text-xl first-letter:capitalize pr-4">
+                    <p className="self-center text-xl first-letter:capitalize pr-10">
                       {pet.name}
                     </p>
                   }

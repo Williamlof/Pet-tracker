@@ -10,18 +10,17 @@ const Popup: React.FC<PopupProps> = ({ onClose, content, background }) => {
   return (
     <div className="fixed inset-0 z-50 flex sm:justify-center sm:items-center h-full bg-slate-900 bg-opacity-90">
       <div
-        className={`${background} rounded-lg shadow-lg p-4 pt-0 flex sm:justify-center flex-col w-full m-4 sm:w-1/4 sm:m-0 sm:p-2 h-full sm:h-1/6`}
+        className={`${background} rounded-lg shadow-lg p-4 pt-0 flex sm:justify-center flex-col w-full m-4 sm:w-1/4 sm:m-0 sm:p-2 h-1/4 sm:h-auto`}
       >
-        <section className="self-end">
+        <section className="self-end mt-2">
           <button
-            className=" p-1 my-2 bg-slate-800 text-slate-100 text-4xl h-12 w-12 rounded-lg cursor-pointer"
+            className=" bg-slate-800 text-slate-100 text-4xl h-12 w-12 rounded-lg cursor-pointer"
             onClick={onClose}
           >
             X
           </button>
         </section>
-
-        {content}
+        <section className="self-start text-slate-800">{content}</section>
       </div>
     </div>
   );

@@ -1,7 +1,7 @@
 export default function About() {
   return (
     <div className=" bg-gray-800 flex justify-center items-center sm:min-h-screen">
-      <section className="p-8 pt-24 text-slate-100 bg-gray-800 flex justify-center items-center flex-col sm:w-3/5">
+      <section className=" pt-24 p-4 text-slate-100 bg-gray-800 flex justify-center items-center flex-col sm:w-5/12">
         <h1 className="text-3xl">
           About <span className="italic font-bold">PetFolio</span>
         </h1>
@@ -180,7 +180,7 @@ export default function About() {
         </p>
         <section className="w-full flex justify-between items-center flex-col h-32">
           <button
-            className=" mt-6 bg-blue-500 hover:bg-blue-600 text-white py-4 px-4 rounded-full shadow w-80 cursor-pointer"
+            className=" mt-6 bg-blue-500 hover:bg-blue-600 text-white py-4 px-4 rounded-full shadow w-64 cursor-pointer"
             onClick={() => (window.location.href = "/register")}
           >
             Register now

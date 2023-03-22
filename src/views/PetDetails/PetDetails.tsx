@@ -73,17 +73,23 @@ function PetDetails() {
   const [isFetching, setIsFetching] = useState(true);
   const [deletedFileUrl, setDeletedFileUrl] = useState<string>("");
   const [popupContent, setPopupContent] = useState<React.ReactNode>(<></>);
-  const [background, setBackground] = useState<string>("bg-slate-100");
+  const [background, setBackground] = useState<string>("");
+  const [uploadFileBtnState, setUploadFileBtnState] = useState<string>(
+    "border border-red-500 cursor-not-allowed"
+  );
+  const [uploadImageBtnState, setUploadImageBtnState] = useState<string>(
+    "border border-red-500 cursor-not-allowed"
+  );
   const triggerPopup = (imageUrl: string) => {
-    if (imageUrl !== "") {
-      setBackground("");
+    if (imageUrl === "") {
+      setBackground("bg-slate-200 my-auto");
     }
     setShowPopup(true);
     setImageUrl(imageUrl);
   };
   const closePopup = () => {
     setShowPopup(false);
-    setBackground("bg-slate-100");
+    setBackground("");
     setImageUrl("");
   };
   const navigate = useNavigate();
@@ -160,7 +166,9 @@ function PetDetails() {
 
         setTimeout(closePopup, 1000);
       } else {
-        setPopupContent(<p>Could not update pet information</p>);
+        setPopupContent(
+          <p className="text-3xl">Could not update pet information</p>
+        );
         setTimeout(closePopup, 1000);
       }
     });
@@ -170,16 +178,16 @@ function PetDetails() {
     const user = auth.currentUser;
 
     if (!selectedImage || !user) {
-      setPopupContent(<p>Please select an image to upload</p>);
+      setPopupContent(
+        <p className="text-3xl">Please select an image to upload</p>
+      );
       triggerPopup("");
 
       return;
     }
 
     try {
-      setPopupContent(
-        <p className=" text-2xl text-slate-800">Uploading image...</p>
-      );
+      setPopupContent(<p className=" text-3xl ">Uploading image...</p>);
       triggerPopup("");
       const userFolderRef = ref(storage, `users/${user.uid}/`);
       const imagesFolderRef = ref(userFolderRef, "images");
@@ -225,8 +233,10 @@ function PetDetails() {
 
       setSelectedFile(null);
       setSelectedImage(null);
+      setUploadImageBtnState("border border-red-500 cursor-not-allowed");
       setImageChanged(!imageChanged);
-      setPopupContent(<p>Image uploaded successfully!</p>);
+      setPopupContent(<p className="text-3xl">Image uploaded successfully!</p>);
+
       setTimeout(() => {
         closePopup();
       }, 1000);
@@ -242,14 +252,16 @@ function PetDetails() {
     const user = auth.currentUser;
 
     if (!selectedFile || !user) {
-      console.error("No file selected or user not logged in!");
+      setPopupContent(
+        <p className="text-3xl">Please select a file to upload</p>
+      );
+      triggerPopup("");
+
       return;
     }
 
     try {
-      setPopupContent(
-        <p className=" text-2xl text-slate-800">Uploading file...</p>
-      );
+      setPopupContent(<p className=" text-3xl ">Uploading file...</p>);
       triggerPopup("");
       const userFolderRef = ref(storage, `users/${user.uid}/`);
       const filesFolderRef = ref(userFolderRef, "files");
@@ -299,8 +311,9 @@ function PetDetails() {
       await setDoc(userRef, { pets }, { merge: true });
       setSelectedFile(null);
       setSelectedImage(null);
+      setUploadFileBtnState("border border-red-500 cursor-not-allowed");
       onUploadComplete();
-      setPopupContent(<p>File uploaded successfully!</p>);
+      setPopupContent(<p className="text-3xl">File uploaded successfully!</p>);
       setTimeout(() => {
         closePopup();
       }, 1000);
@@ -318,7 +331,9 @@ function PetDetails() {
             fetchPet(auth.currentUser.uid, petName);
           }
         } else {
-          setPopupContent(<p>Please sign in to view this page</p>);
+          setPopupContent(
+            <p className="text-3xl">Please sign in to view this page</p>
+          );
           setTimeout(closePopup, 1000);
           navigate("/signin");
         }
@@ -520,7 +535,7 @@ function PetDetails() {
   const deleteImage = async (petName: string, imageUrl: string) => {
     try {
       // Update pet document in Firestore
-      setPopupContent(<p>Deleting image...</p>);
+      setPopupContent(<p className="text-3xl">Deleting image...</p>);
       triggerPopup("");
       const db = getFirestore();
       const userId = auth.currentUser!.uid;
@@ -543,7 +558,7 @@ function PetDetails() {
 
         setDeletedImageUrl(imageUrl);
         setImageChanged(!imageChanged);
-        setPopupContent(<p>Image deleted sucessfully</p>);
+        setPopupContent(<p className="text-3xl">Image deleted sucessfully</p>);
         setTimeout(() => {
           closePopup();
         }, 1000);
@@ -557,7 +572,7 @@ function PetDetails() {
   const deleteFile = async (petName: string, fileUrl: string) => {
     try {
       triggerPopup("");
-      setPopupContent(<p>Deleting file...</p>);
+      setPopupContent(<p className="text-3xl">Deleting file...</p>);
       // Update pet document in Firestore
       const db = getFirestore();
       const userId = auth.currentUser!.uid;
@@ -585,7 +600,7 @@ function PetDetails() {
       }
       // Close the popup
 
-      setPopupContent(<p>File deleted!</p>);
+      setPopupContent(<p className="text-3xl">File deleted!</p>);
       setTimeout(() => {
         closePopup();
       }, 1000);
@@ -595,6 +610,20 @@ function PetDetails() {
     }
   };
 
+  function handleSelectedFile(e: React.ChangeEvent<HTMLInputElement>) {
+    console.log("file selected");
+    setSelectedFile(e.target.files?.[0]);
+    setUploadFileBtnState("border border-green-500 ");
+    if (!e.target.files?.[0])
+      setUploadFileBtnState("border border-red-500 cursor-not-allowed");
+  }
+  function handleSelectedImage(e: React.ChangeEvent<HTMLInputElement>) {
+    console.log("image selected");
+    setSelectedImage(e.target.files?.[0]);
+    setUploadImageBtnState("border border-green-500 ");
+    if (!e.target.files?.[0])
+      setUploadImageBtnState("border border-red-500 cursor-not-allowed");
+  }
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
       if (user && name) {
@@ -714,14 +743,14 @@ function PetDetails() {
                               <article className=" max-h-full w-full flex flex-col self-center justify-center">
                                 <section className="self-center">
                                   <img
-                                    className=" object-contain rounded-lg shadow-md max-h-480 sm:max-h-none"
+                                    className=" object-contain rounded-lg shadow-md max-h-480 sm:max-h-600 md:max-h-720"
                                     src={image.url}
                                   />
                                 </section>
 
                                 <section className="flex justify-between w-full">
                                   <button
-                                    className="bg-red-500 text-slate-100 rounded-md px-2 py-2 mt-2 text-sm"
+                                    className="bg-slate-800 border-red-500 hover:bg-red-500 hover:border-slate-800 transition border text-slate-100 rounded-md px-2 py-2 mt-2 text-sm"
                                     title="This will delete the image from your account. There is no way to undo this action."
                                     onClick={() =>
                                       deleteImage(pet.name, image.url)
@@ -758,7 +787,7 @@ function PetDetails() {
                       type="file"
                       id="img-input"
                       accept="image/*"
-                      onChange={(e) => setSelectedImage(e.target.files?.[0])}
+                      onChange={(e) => handleSelectedImage(e)}
                     />
                     <label
                       className="inline-block px-4 py-2 text-white bg-blue-500 rounded cursor-pointer hover:bg-blue-600  w-48 text-center"
@@ -766,11 +795,11 @@ function PetDetails() {
                     >
                       Choose an Image
                     </label>
-                    <span className="text-sm w-36 text-slate-100 text-ellipsis">
+                    <span className="text-sm w-36 text-slate-100 text-ellipsis h-8 px-2">
                       {selectedImage?.name.slice(0, 15).concat("...")}
                     </span>
                     <button
-                      className="bg-slate-800 text-slate-100 rounded-md px-2 py-2 m-1 w-48"
+                      className={`${uploadImageBtnState} bg-slate-800 text-slate-100 rounded-md px-2 py-2 m-1 w-48`}
                       onClick={() => handleImageUpload(name)}
                     >
                       Upload image
@@ -802,13 +831,13 @@ function PetDetails() {
                         </section>
                         <section className="flex flex-col sm:block">
                           <button
-                            className=" bg-red-500 text-slate-100 rounded-md sm:h-3/4 sm:w-full my-2 py-2 px-2"
+                            className=" bg-slate-800 border-red-500 hover:bg-red-500 hover:border-slate-800 transition border text-slate-100 rounded-md sm:h-3/4 sm:w-full my-2 py-2 px-2"
                             onClick={() => deleteFile(pet.name, file.url)}
                           >
                             Delete
                           </button>
                           <button
-                            className="bg-slate-800 text-slate-100 rounded-md sm:h-3/4 sm:w-full py-2 mb-2 px-2"
+                            className="bg-blue-500 cursor-pointer hover:bg-blue-600 text-slate-100 rounded-md sm:h-3/4 sm:w-full py-2 mb-2 px-2"
                             onClick={() => downloadFile(file.name, file.url)}
                           >
                             Download
@@ -824,7 +853,7 @@ function PetDetails() {
                       id="file-input"
                       className="hidden"
                       accept=".txt, .doc, .docx, application/msword, application/vnd.openxmlformats-officedocument.wordprocessingml.document, application/pdf, .xls, .xlsx, application/vnd.ms-excel, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, text/csv, application/zip, application/x-rar-compressed, application/x-7z-compressed, application/gzip, application/x-tar, application/x-gtar, application/x-gzip, application/x-bzip2, application/x-xz"
-                      onChange={(e) => setSelectedFile(e.target.files?.[0])}
+                      onChange={(e) => handleSelectedFile(e)}
                     />
                     <label
                       htmlFor="file-input"
@@ -832,9 +861,9 @@ function PetDetails() {
                     >
                       Choose a File
                     </label>
-                    <section className="text-sm w-36 h-36 text-slate-100 flex items-center justify-center">
+                    <section className="text-sm w-36 text-slate-100 flex items-center justify-center">
                       <span
-                        className=" overflow-hidden whitespace-nowrap overflow-ellipsis"
+                        className=" overflow-hidden whitespace-nowrap overflow-ellipsis h-8 px-2"
                         style={{
                           textOverflow: "ellipsis",
                           whiteSpace: "nowrap",
@@ -846,7 +875,7 @@ function PetDetails() {
                     </section>
 
                     <button
-                      className="bg-slate-800 text-slate-200 rounded-md px-2 py-2 m-1 w-48"
+                      className={`${uploadFileBtnState} bg-slate-800 text-slate-100 rounded-md px-2 py-2 m-1 w-48`}
                       onClick={() =>
                         handleFileUpload(name, () => {
                           setFileChanged(!fileChanged);
@@ -860,9 +889,9 @@ function PetDetails() {
               }
             />
             <section>
-              <button className="inline-block px-8 py-4 text-white bg-blue-500 rounded cursor-pointer hover:bg-blue-600 w-76 text-center">
+              <button className="bg-blue-500 hover:bg-blue-600 text-white py-4 px-4 rounded-full shadow w-64 sm:w-80 cursor-pointer">
                 <Link to={`/mypets/${name}/weightstatistics`}>
-                  Start tracking {name}'s weight.
+                  Weight Tracker
                 </Link>
               </button>
             </section>

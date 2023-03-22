@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { firebaseConfig } from "../../services/firebase";
 import { initializeApp } from "firebase/app";
 import {
@@ -39,6 +39,18 @@ const SignInPage: React.FunctionComponent<ISignInPageProps> = (props) => {
     email: "",
     password: "",
   });
+
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      if (user) {
+        navigate("/mypets");
+      }
+    });
+
+    return () => {
+      unsubscribe();
+    };
+  }, [navigate]);
 
   const createUserFolder = async (uid: string) => {
     // Get a reference to the user's storage folder
