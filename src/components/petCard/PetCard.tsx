@@ -18,16 +18,15 @@ const PetCard: React.FC<petCardProps> = ({
   const navigate = useNavigate();
   return (
     <article
-      className="w-full h-full mb-0 flex justify-between cursor-pointer"
+      className="w-full h-full mb-0 flex cursor-pointer justify-between"
       onClick={() => {
         navigate(`/mypets/${petName}/`);
       }}
     >
-      <section className="flex justify-start w-36 h-full">{image}</section>
+      <section className="flex self-start w-36 h-full">{image}</section>
 
       {title}
       {action}
-      {icon}
     </article>
   );
 };

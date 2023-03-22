@@ -141,9 +141,9 @@ const MyPets = () => {
                     )
                   }
                   title={
-                    <h1 className="self-center text-lg first-letter:capitalize">
+                    <p className="self-center text-xl first-letter:capitalize pr-4">
                       {pet.name}
-                    </h1>
+                    </p>
                   }
                   icon={<FaEdit className="mr-4 self-center" />}
                 />

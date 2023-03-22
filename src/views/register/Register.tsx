@@ -113,7 +113,7 @@ export default function Register() {
           <h2 className="hidden sm:flex text-5xl w-3/4  font-bold leading-11 italic underline underline-offset-8 text-purple-300 ">
             PetFolio
           </h2>
-          <div className="bg-[url('./assets/nalle.webp')] bg-cover w-48 h-48 rounded-full my-8 shadow-xl sm:w-72 sm:h-72 sm:mt-0 sm:my-0 self-center"></div>
+          <div className="bg-[url('./assets/nalle.webp')] bg-cover w-48 h-48 rounded-full mt-16 mb-8 shadow-xl sm:w-72 sm:h-72 sm:mt-0 sm:my-0 self-center"></div>
         </div>
         <div className="sm:h-full sm:flex sm:items-center sm:justify-center sm:bg-slate-700 sm:w-3/5 sm:rounded-br-lg sm:rounded-tr-md shadow-2xl">
           <div className=" bg-gray-600 rounded-md bg-clip-padding-sm bg-opacity-30 border border-gray-100 p-2 sm:p-4 sm:m-2 flex justify-center flex-col items-center">
@@ -130,7 +130,7 @@ export default function Register() {
                 value={formData.displayName}
                 onChange={handleInputChange}
                 placeholder="Display name"
-                className=" w-80 h-10 rounded-md bg-gray-50 p-2 text-gray-600"
+                className="w-64 sm:w-80 h-10 rounded-md bg-gray-50 p-2 text-gray-600"
                 required
               />
               <input
@@ -139,7 +139,7 @@ export default function Register() {
                 value={formData.email}
                 onChange={handleInputChange}
                 placeholder="Email"
-                className="w-80 h-10 rounded-md bg-gray-50 p-2 text-gray-600"
+                className="w-64 sm:w-80 h-10 rounded-md bg-gray-50 p-2 text-gray-600"
                 required
               />
               <input
@@ -148,7 +148,7 @@ export default function Register() {
                 value={formData.password}
                 onChange={handleInputChange}
                 placeholder="Password (min 8 characters)"
-                className="w-80 h-10 rounded-md bg-gray-50 p-2 text-gray-600"
+                className="w-64 sm:w-80 h-10 rounded-md bg-gray-50 p-2 text-gray-600"
                 minLength={8}
                 required
               />
@@ -158,7 +158,7 @@ export default function Register() {
                 value={formData.confirmPassword}
                 onChange={handleInputChange}
                 placeholder="Confirm Password"
-                className="w-80 h-10 rounded-md bg-gray-50 p-2 text-gray-600"
+                className="w-64 sm:w-80 h-10 rounded-md bg-gray-50 p-2 text-gray-600"
                 minLength={8}
                 required
               />

@@ -115,7 +115,7 @@ const SignInPage: React.FunctionComponent<ISignInPageProps> = (props) => {
 
   return (
     <div className="bg-gradient-to-b from-slate-900  to-slate-700 w-screen h-screen bg-cover sm:flex sm:items-center sm:justify-center">
-      <div className="flex flex-col items-center justify-center h-full sm:flex-row sm:h-3/5 sm:rounded-lg sm:flex-1 sm:max-w-screen-lg">
+      <div className="flex flex-col items-center justify-center h-full w-full sm:flex-row sm:h-3/5 sm:rounded-lg sm:flex-1 sm:max-w-screen-lg">
         <div className=" sm:border-b-slate-700 sm:h-full sm:min-h-full sm:flex sm:justify-center sm:p-8 sm:bg-slate-600 sm:flex-col sm:w-3/4 sm:rounded-bl-lg sm:rounded-tl-md shadow-2xl">
           <h1 className=" hidden sm:flex text-4xl w-3/4  text-slate-100 font-bold leading-11 mb-2">
             Store your pets information the easy way with
@@ -123,7 +123,7 @@ const SignInPage: React.FunctionComponent<ISignInPageProps> = (props) => {
           <h2 className="hidden sm:flex text-5xl w-3/4  font-bold leading-11 italic underline underline-offset-8 text-purple-300 ">
             PetFolio
           </h2>
-          <div className="bg-[url('./assets/nalle.webp')] bg-cover w-48 h-48 rounded-full my-8 shadow-xl sm:w-72 sm:h-72 sm:mt-0 sm:my-0 self-center"></div>
+          <div className="bg-[url('./assets/nalle.webp')] bg-cover w-48 h-48 rounded-full mt-16 mb-8 shadow-xl sm:w-72 sm:h-72 sm:mt-0 sm:my-0 self-center"></div>
         </div>
         <div className="sm:h-full sm:flex sm:items-center sm:justify-center sm:bg-slate-700 sm:w-3/5 sm:rounded-br-lg sm:rounded-tr-md shadow-2xl">
           <div className=" bg-gray-600 rounded-md bg-clip-padding-sm bg-opacity-30 border border-gray-100 p-2 sm:p-4 sm:m-2 flex justify-center flex-col items-center">
@@ -132,10 +132,10 @@ const SignInPage: React.FunctionComponent<ISignInPageProps> = (props) => {
             </h1>
             <form
               onSubmit={handleFormSubmit}
-              className="flex flex-col items-center justify-center space-y-4 "
+              className="flex flex-col items-center space-y-4 justify-center w-full"
             >
               <input
-                className="w-80 h-10 rounded-md bg-gray-50 p-2 text-gray-600"
+                className=" w-64 sm:w-80 h-10 rounded-md bg-gray-50 p-2 mx-2 text-gray-600"
                 type="email"
                 name="email"
                 placeholder="Email"
@@ -146,7 +146,7 @@ const SignInPage: React.FunctionComponent<ISignInPageProps> = (props) => {
               <br />
 
               <input
-                className="w-80 h-10 rounded-md bg-gray-50 p-2 text-gray-600"
+                className=" w-64 sm:w-80 h-10 rounded-md bg-gray-50 p-2 mx-2 text-gray-600"
                 type="password"
                 name="password"
                 placeholder="Password"
