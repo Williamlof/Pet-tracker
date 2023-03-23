@@ -1,12 +1,20 @@
 import React, { useEffect, useRef } from "react";
 import * as d3 from "d3";
-import { NumberValue } from "d3";
 
 type Props = {
-  data: { date: string; weight: number }[];
-};
+  data: {
+    month: string;
+    totalSpent: number;
+    costs: {
+      food: number;
+      veterinary: number;
+      insurance: number;
+      other: number;
+    };
+  }[];
+} & React.SVGProps<SVGSVGElement>;
 
-const WeightGraph: React.FC<Props> = ({ data }) => {
+const CostAnalysisGraph: React.FC<Props> = ({ data }) => {
   const graphRef = useRef<SVGSVGElement>(null);
   const screenWidth = window.innerWidth;
   const width = screenWidth <= 640 ? screenWidth * 2 : 800;
@@ -15,15 +23,26 @@ const WeightGraph: React.FC<Props> = ({ data }) => {
 
   const handleMouseOver = (
     e: MouseEvent,
-    d: { date: string; weight: number }
+    d: {
+      month: string;
+      totalSpent: number;
+      costs: {
+        food: number;
+        veterinary: number;
+        insurance: number;
+        other: number;
+      };
+    }
   ) => {
     const tooltip = d3.select("#tooltip");
     tooltip
       .style("display", "block")
       .html(
-        `Date: ${d3.timeFormat("%Y-%m-%d")(
-          new Date(d.date)
-        )}<br/>Weight: ${d.weight.toFixed(2)} kg`
+        `Month: ${d.month}<br/>Food: ${d.costs.food.toFixed(2)} SEK
+        <br/>Veterinary: ${d.costs.veterinary.toFixed(2)} SEK
+        <br/>Insurance: ${d.costs.insurance.toFixed(2)} SEK
+        <br/>Other: ${d.costs.other.toFixed(2)} SEK
+        <br/>Total cost: ${d.totalSpent.toFixed(2)} SEK`
       )
       .style("left", e.clientX - 450 + "px")
       .style("top", e.clientY - 200 + "px");
@@ -37,51 +56,46 @@ const WeightGraph: React.FC<Props> = ({ data }) => {
     if (!graphRef.current || data.length === 0) return;
 
     d3.select(graphRef.current).selectAll("*").remove();
-    const makeXGridlines = () => d3.axisBottom(xScale).ticks(width / 80);
-    const makeYGridlines = () => d3.axisLeft(yScale);
 
     // Set up scales
     const xScale = d3
-      .scaleTime()
-      .domain(d3.extent(data, (d) => new Date(d.date)) as [Date, Date])
-      .range([margin.left, width - margin.right]);
-
+      .scaleBand()
+      .domain(data.map((d) => d.month))
+      .range([margin.left, width - margin.right])
+      .paddingInner(0.5)
+      .paddingOuter(0.25);
     const yScale = d3
       .scaleLinear()
-      .domain([0, d3.max(data, (d) => d.weight) as number])
+      .domain([0, d3.max(data, (d) => d.totalSpent) as number])
       .range([height - margin.bottom, margin.top]);
 
-    // Draw line
-    const line = d3
-      .line<{ date: string; weight: number }>()
-      .x((d) => xScale(new Date(d.date)))
-      .y((d) => yScale(d.weight));
-
+    // Draw bars
     d3.select(graphRef.current)
-      .append("path")
-      .datum(data)
-      .attr("fill", "none")
-      .attr("stroke", "steelblue")
-      .attr("stroke-width", 3)
-      .attr("stroke-linejoin", "round")
-      .attr("stroke-linecap", "round")
-      .attr("z-index", 0)
-      .attr("d", line);
+      .selectAll(".bar")
+      .data(data)
+      .join("rect")
+      .attr("class", "bar")
+      .attr("x", (d) => xScale(d.month) || 0)
+      .attr("y", (d) => yScale(d.totalSpent))
+      .attr("width", xScale.bandwidth())
+      .attr("height", (d) => yScale(0) - yScale(d.totalSpent))
+      .attr("fill", "steelblue")
+      .on("mouseover", handleMouseOver)
+      .on("mouseout", handleMouseOut)
+      .on("touchstart", (event, d) => {
+        event.preventDefault();
+        handleMouseOver(event, d);
+      })
+      .on("touchend", (event) => {
+        event.preventDefault();
+        handleMouseOut();
+      });
 
     // Draw axes
     const xAxis = (g: any) =>
       g
         .attr("transform", `translate(0,${height - margin.bottom})`)
-        .call(
-          d3
-            .axisBottom(xScale)
-            .ticks(width / 80)
-            .tickSizeOuter(0)
-            .tickFormat(((d: Date) => d3.timeFormat("%m-%d")(d)) as (
-              domainValue: Date | NumberValue,
-              index: number
-            ) => string)
-        )
+        .call(d3.axisBottom(xScale).tickSizeOuter(0))
         .call((g: any) =>
           g
             .select(".tick:first-of-type text")
@@ -90,24 +104,7 @@ const WeightGraph: React.FC<Props> = ({ data }) => {
             .attr("x", -50)
             .attr("text-anchor", "end")
             .attr("font-weight", "bold")
-            .text("Date")
-        )
-        .call(
-          (g: any) =>
-            g
-              .selectAll(".tick text")
-              .attr("transform", "rotate(-65)") // Rotate the tick labels
-              .attr("text-anchor", "end") // Anchor the text at the end
-              .attr("dy", "0.32em") // Adjust the vertical position
-              .attr("dx", "-0.5em") // Adjust the horizontal position
-        )
-        .call((g: any) =>
-          g
-            .selectAll(".tick line")
-            .clone()
-            .attr("y2", -(height - margin.top - margin.bottom))
-            .attr("stroke-opacity", 0.1)
-            .attr("stroke-dasharray", "2,2")
+            .text("Month")
         );
 
     const yAxis = (g: any) =>
@@ -119,43 +116,14 @@ const WeightGraph: React.FC<Props> = ({ data }) => {
             .select(".tick:last-of-type text")
             .clone()
             .attr("x", 3)
+            .attr("y", -15)
             .attr("text-anchor", "start")
             .attr("font-weight", "bold")
-            .text("Weight (kg)")
-        )
-        .call((g: any) =>
-          g
-            .selectAll(".tick line")
-            .clone()
-            .attr("x2", width - margin.left - margin.right)
-            .attr("stroke-opacity", 0.1)
-            .attr("stroke-dasharray", "2,2")
+            .text("Total Spent in SEK")
         );
 
     d3.select(graphRef.current).append("g").call(xAxis);
     d3.select(graphRef.current).append("g").call(yAxis);
-    d3.select(graphRef.current)
-      .selectAll(".dot")
-      .data(data)
-      .join("circle")
-      .attr("class", "dot")
-      .attr("cx", (d) => xScale(new Date(d.date)))
-      .attr("cy", (d) => yScale(d.weight))
-      .attr("r", 5)
-      .attr("fill", "red")
-      .attr("width", 20)
-      .attr("height", 20)
-      .attr("z-index", 10)
-      .on("mouseover", handleMouseOver)
-      .on("mouseout", handleMouseOut)
-      .on("touchstart", (event, d) => {
-        event.preventDefault();
-        handleMouseOver(event, d);
-      })
-      .on("touchend", (event) => {
-        event.preventDefault();
-        handleMouseOut();
-      });
   }, [data]);
 
   const aspectRatio = height / width;
@@ -168,7 +136,7 @@ const WeightGraph: React.FC<Props> = ({ data }) => {
 
   return (
     <div
-      style={parentDivStyle} // Use the parentDivStyle object
+      style={parentDivStyle}
       className="flex justify-center items-center bg-slate-300 rounded relative h-screen sm:h-full"
     >
       <div
@@ -192,7 +160,7 @@ const WeightGraph: React.FC<Props> = ({ data }) => {
           height: "100%",
           overflowX: "scroll",
         }}
-        className=" h-full"
+        className="h-full"
       >
         <div
           style={{
@@ -215,5 +183,4 @@ const WeightGraph: React.FC<Props> = ({ data }) => {
     </div>
   );
 };
-
-export default WeightGraph;
+export default CostAnalysisGraph;

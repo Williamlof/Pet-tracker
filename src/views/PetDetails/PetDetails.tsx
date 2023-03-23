@@ -44,6 +44,15 @@ type PetData = {
   files: string[];
   images: string[];
   weightData: Array<{ date: Date; weight: number }>;
+  costData: Array<{
+    month: string;
+    totalSpent: number;
+    costs: {
+      food: number;
+      veterinary: number;
+      insurance: number;
+    };
+  }>;
   [key: string]: any; // Add an index signature to allow for any other properties
 };
 
@@ -124,6 +133,7 @@ function PetDetails() {
       images: pet.images,
       files: pet.files,
       weightData: pet.weightData,
+      costData: pet.costData,
     };
     setPet(petObj);
   };
@@ -868,9 +878,7 @@ function PetDetails() {
             />
             <section>
               <button className="bg-blue-500 hover:bg-blue-600 text-white py-4 px-4 rounded-full shadow w-64 sm:w-80 cursor-pointer">
-                <Link to={`/mypets/${name}/weightstatistics`}>
-                  Weight Tracker
-                </Link>
+                <Link to={`/mypets/${name}/statistics`}>Weight Tracker</Link>
               </button>
             </section>
           </div>

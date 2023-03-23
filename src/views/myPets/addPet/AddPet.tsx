@@ -21,6 +21,15 @@ interface PetData {
   files: string[];
   images: string[];
   weightData: { weight: number; date: string }[];
+  costData: {
+    month: string;
+    totalSpent: number;
+    costs: {
+      food: number;
+      veterinary: number;
+      insurance: number;
+    };
+  }[];
 }
 
 const AddPetForm = () => {
@@ -37,6 +46,7 @@ const AddPetForm = () => {
     files: [],
     images: [],
     weightData: [],
+    costData: [],
   });
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -53,6 +63,7 @@ const AddPetForm = () => {
       files: [],
       images: [],
       weightData: [],
+      costData: [],
     });
 
     const db = getFirestore(app);
@@ -80,6 +91,7 @@ const AddPetForm = () => {
               date: new Date().toISOString().slice(0, 10),
             },
           ],
+          costData: [],
         }),
       });
       navigate("/mypets");

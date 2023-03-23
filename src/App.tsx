@@ -14,7 +14,7 @@ import { initializeApp } from "firebase/app";
 import { firebaseConfig } from "./services/firebase";
 import AddPet from "./views/myPets/addPet/AddPet";
 import PetDetails from "./views/PetDetails/PetDetails";
-import WeightStatistics from "./views/weightStatistics/WeightStatistics";
+import Statistics from "./views/Statistics/Statistics";
 
 initializeApp(firebaseConfig);
 
@@ -42,10 +42,7 @@ const App: React.FC = () => {
         <Route path="/mypets/addPet" element={<AddPet />} />
 
         <Route path="/mypets/:petName" element={<PetDetails />} />
-        <Route
-          path="/mypets/:petName/weightstatistics"
-          element={<WeightStatistics />}
-        />
+        <Route path="/mypets/:petName/Statistics" element={<Statistics />} />
       </Routes>
     </div>
   );

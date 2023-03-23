@@ -1,0 +1,31 @@
+{
+  "data": [
+    {
+      "month": "January",
+      "totalSpent": 450,
+      "costs": {
+        "food": 200,
+        "veterinary": 150,
+        "insurance": 100
+      }
+    },
+    {
+      "month": "February",
+      "totalSpent": 420,
+      "costs": {
+        "food": 180,
+        "veterinary": 140,
+        "insurance": 100
+      }
+    },
+    {
+      "month": "March",
+      "totalSpent": 480,
+      "costs": {
+        "food": 220,
+        "veterinary": 160,
+        "insurance": 100
+      }
+    }
+  ]
+}
