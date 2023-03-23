@@ -50,10 +50,7 @@ export default function Register() {
     try {
       // Set a dummy file to create the user's storage folder
       await uploadString(ref(userFolderRef, "dummy"), "dummy content");
-      console.log(`User storage folder created for user with uid: ${uid}`);
-    } catch (error) {
-      console.error(`Error creating user storage folder: ${error}`);
-    }
+    } catch (error) {}
   };
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -79,7 +76,6 @@ export default function Register() {
           // Signed in
           const user = userCredential.user;
           // ...
-          console.log(user);
         }
       );
 

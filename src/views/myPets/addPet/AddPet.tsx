@@ -16,6 +16,7 @@ interface PetData {
   weight: number;
   birthday: string;
   diet: string;
+  chipNumber: string;
   gender: string;
   files: string[];
   images: string[];
@@ -30,6 +31,7 @@ const AddPetForm = () => {
     breed: "",
     weight: 0,
     birthday: "",
+    chipNumber: "",
     diet: "",
     gender: "",
     files: [],
@@ -47,6 +49,7 @@ const AddPetForm = () => {
       birthday: "",
       diet: "",
       gender: "",
+      chipNumber: "",
       files: [],
       images: [],
       weightData: [],
@@ -56,12 +59,9 @@ const AddPetForm = () => {
 
     // Create a reference to the user's pets collection
     const userDocRef = doc(db, "users", auth.currentUser!.uid);
-    console.log("User doc ref: ", userDocRef);
 
     // Add the pet to the user's pets collection
     try {
-      console.log("entered try block");
-
       await updateDoc(userDocRef, {
         pets: arrayUnion({
           name: petData.name,
@@ -70,6 +70,7 @@ const AddPetForm = () => {
           weight: petData.weight,
           birthday: petData.birthday,
           diet: petData.diet,
+          chipData: petData.chipNumber,
           gender: petData.gender,
           files: petData.files,
           images: petData.images,
@@ -82,9 +83,7 @@ const AddPetForm = () => {
         }),
       });
       navigate("/mypets");
-    } catch (e) {
-      console.error("Error adding document: ", e);
-    }
+    } catch (e) {}
   };
   return (
     <div
@@ -113,9 +112,7 @@ const AddPetForm = () => {
             className=" w-full rounded-lg h-10 shadow-md text-slate-800 p-4"
           />
         </label>
-
         <br />
-
         <label className=" text-slate-200 text-md w-full">
           Birthday:
           <input
@@ -137,6 +134,18 @@ const AddPetForm = () => {
             type="text"
             value={petData.breed}
             onChange={(e) => setPetData({ ...petData, breed: e.target.value })}
+            className=" w-full rounded-lg h-10 shadow-md text-slate-800 p-4"
+          />
+        </label>
+        <br />
+        <label className=" text-slate-200 text-md w-full">
+          Chip number:
+          <input
+            type="text"
+            value={petData.chipNumber}
+            onChange={(e) =>
+              setPetData({ ...petData, chipNumber: e.target.value })
+            }
             className=" w-full rounded-lg h-10 shadow-md text-slate-800 p-4"
           />
         </label>

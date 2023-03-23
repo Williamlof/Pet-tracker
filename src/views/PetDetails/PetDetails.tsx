@@ -39,6 +39,7 @@ type PetData = {
   weight: number;
   birthday: Date;
   diet: string;
+  chipData: string;
   gender: string;
   files: string[];
   images: string[];
@@ -117,6 +118,7 @@ function PetDetails() {
       notes: pet.notes,
       weight: pet.weight,
       birthday: pet.birthday,
+      chipData: pet.chipData,
       diet: pet.diet,
       gender: pet.gender,
       images: pet.images,
@@ -209,7 +211,6 @@ function PetDetails() {
       const userDoc = await getDoc(userRef);
 
       if (!userDoc.exists()) {
-        console.error("User document does not exist!");
         return;
       }
 
@@ -219,7 +220,6 @@ function PetDetails() {
       );
 
       if (petIndex === -1) {
-        console.error(`Pet with name ${name} not found!`);
         return;
       }
 
@@ -240,9 +240,7 @@ function PetDetails() {
       setTimeout(() => {
         closePopup();
       }, 1000);
-    } catch (error) {
-      console.error(error);
-    }
+    } catch (error) {}
   };
 
   const handleFileUpload = async (
@@ -288,7 +286,6 @@ function PetDetails() {
       const userDoc = await getDoc(userRef);
 
       if (!userDoc.exists()) {
-        console.error("User document does not exist!");
         return;
       }
 
@@ -298,7 +295,6 @@ function PetDetails() {
       );
 
       if (petIndex === -1) {
-        console.error(`Pet with name ${name} not found!`);
         return;
       }
 
@@ -317,9 +313,7 @@ function PetDetails() {
       setTimeout(() => {
         closePopup();
       }, 1000);
-    } catch (error) {
-      console.error(error);
-    }
+    } catch (error) {}
   };
 
   useEffect(() => {
@@ -370,7 +364,6 @@ function PetDetails() {
     const userDoc = await getDoc(userRef);
 
     if (!userDoc.exists()) {
-      console.error("User document does not exist!");
       return null;
     }
 
@@ -380,7 +373,6 @@ function PetDetails() {
     );
 
     if (!pet) {
-      console.error(`Pet with name ${petName} not found!`);
     }
 
     return pet;
@@ -415,9 +407,7 @@ function PetDetails() {
           const imageName = metadata.name || "";
           result.push({ url: url, name: imageName });
         }
-      } catch (error) {
-        console.error(error);
-      }
+      } catch (error) {}
     }
     return result;
   }
@@ -451,9 +441,7 @@ function PetDetails() {
           const fileName = metadata.name || "";
           result.push({ url: url, name: fileName });
         }
-      } catch (error) {
-        console.error(error);
-      }
+      } catch (error) {}
     }
     return result;
   }
@@ -470,7 +458,6 @@ function PetDetails() {
 
       const userDoc = await getDoc(userRef);
       if (!userDoc.exists()) {
-        console.error("User document does not exist!");
         return;
       }
 
@@ -480,7 +467,6 @@ function PetDetails() {
       );
 
       if (!pet) {
-        console.error(`Pet with name ${petName} not found!`);
         return;
       }
 
@@ -488,8 +474,6 @@ function PetDetails() {
 
       if (imageUrls.includes(imageUrl)) {
         await downloadImage(imageUrl, imageName);
-      } else {
-        console.error(`Image URL ${imageUrl} not found in the pet's images!`);
       }
     }
   }
@@ -508,9 +492,7 @@ function PetDetails() {
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-    } catch (error) {
-      console.error(error);
-    }
+    } catch (error) {}
   }
 
   async function downloadFile(fileName: string, fileUrl: string) {
@@ -527,9 +509,7 @@ function PetDetails() {
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-    } catch (error) {
-      console.error(error);
-    }
+    } catch (error) {}
   }
 
   const deleteImage = async (petName: string, imageUrl: string) => {
@@ -564,9 +544,7 @@ function PetDetails() {
         }, 1000);
       }
       // Close the popup
-    } catch (error) {
-      console.error(error);
-    }
+    } catch (error) {}
   };
 
   const deleteFile = async (petName: string, fileUrl: string) => {
@@ -605,20 +583,16 @@ function PetDetails() {
         closePopup();
       }, 1000);
       setFileChanged(!fileChanged);
-    } catch (error) {
-      console.error(error);
-    }
+    } catch (error) {}
   };
 
   function handleSelectedFile(e: React.ChangeEvent<HTMLInputElement>) {
-    console.log("file selected");
     setSelectedFile(e.target.files?.[0]);
     setUploadFileBtnState("border border-green-500 ");
     if (!e.target.files?.[0])
       setUploadFileBtnState("border border-red-500 cursor-not-allowed");
   }
   function handleSelectedImage(e: React.ChangeEvent<HTMLInputElement>) {
-    console.log("image selected");
     setSelectedImage(e.target.files?.[0]);
     setUploadImageBtnState("border border-green-500 ");
     if (!e.target.files?.[0])
@@ -654,7 +628,7 @@ function PetDetails() {
               </h1>
               {imageObject.length > 0 ? (
                 <img
-                  className="h-32 w-80 rounded-lg object-cover my-4"
+                  className=" max-h-360 w-80 rounded-lg object-cover my-4"
                   src={imageObject.length > 0 ? imageObject[0].url : ""}
                   alt="pet-image"
                 />
@@ -671,6 +645,10 @@ function PetDetails() {
                   <section className="flex justify-between py-2 border-b border-gray-800 text-slate-100">
                     <p>Breed:</p>
                     <p>{pet.breed}</p>
+                  </section>
+                  <section className="flex justify-between py-2 border-b border-gray-800 text-slate-100">
+                    <p>Chip number:</p>
+                    <p>{pet.chipData}</p>
                   </section>
 
                   <section className="flex justify-between py-2 border-b border-gray-800 text-slate-100">

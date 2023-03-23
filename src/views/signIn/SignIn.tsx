@@ -60,10 +60,7 @@ const SignInPage: React.FunctionComponent<ISignInPageProps> = (props) => {
     try {
       // Set a dummy file to create the user's storage folder
       await uploadString(ref(userFolderRef, "dummy"), "dummy content");
-      console.log(`User storage folder created for user with uid: ${uid}`);
-    } catch (error) {
-      console.error(`Error creating user storage folder: ${error}`);
-    }
+    } catch (error) {}
   };
 
   const signInWithGoogle = async () => {
@@ -90,7 +87,6 @@ const SignInPage: React.FunctionComponent<ISignInPageProps> = (props) => {
           navigate("/mypets");
         });
     } catch (error) {
-      console.log(error);
     } finally {
       setAuthing(false);
     }

@@ -109,7 +109,6 @@ export default function WeightStatistics() {
               Something went wrong, please try again
             </p>
           );
-          console.error("User's document does not exist");
         }
       } else {
         // Handle the case where 'name' is undefined
@@ -118,7 +117,6 @@ export default function WeightStatistics() {
             Something went wrong, please try again
           </p>
         );
-        console.error("Name is undefined");
       }
     }
   };
@@ -147,8 +145,6 @@ export default function WeightStatistics() {
           if (pet && pet.weightData) {
             setWeightData(pet.weightData);
           }
-        } else {
-          console.error("User's document does not exist");
         }
       }
     };

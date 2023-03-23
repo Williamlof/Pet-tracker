@@ -750,6 +750,10 @@ video {
   max-height: 30rem;
 }
 
+.max-h-360{
+  max-height: 22.5rem;
+}
+
 .min-h-full{
   min-height: 100%;
 }

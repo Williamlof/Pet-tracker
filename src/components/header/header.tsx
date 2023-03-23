@@ -25,16 +25,12 @@ export default function header() {
       auth
         .signOut()
         .then(() => {
-          console.log("User signed out successfully");
           setIsOpen(false);
           setNavLoggedIn(false);
           setShowList(false);
         })
-        .catch((error) => {
-          console.error("Error signing out:", error);
-        });
+        .catch((error) => {});
     } else {
-      console.log("No user is currently signed in");
     }
   }
 

@@ -17,7 +17,6 @@ const AuthRoute: React.FunctionComponent<IAuthRouteProps> = (props) => {
     if (user) {
       setLoading(false);
     } else {
-      console.log("auth failed");
       navigate("/signin");
     }
   });

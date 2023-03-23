@@ -79,14 +79,10 @@ const MyPets = () => {
           const firstImage = await getFirstImageIndexForEachPet(
             auth.currentUser.uid
           );
-          console.log(firstImage);
-
           return firstImage;
         } else {
-          console.log(" no user signed in ");
           navigate("/signin");
         }
-      console.log(pets);
     });
   }, []);
 
@@ -95,7 +91,6 @@ const MyPets = () => {
     const userDoc = await getDoc(userRef);
 
     if (!userDoc.exists()) {
-      console.error("User document does not exist!");
       return [];
     }
 
@@ -110,8 +105,6 @@ const MyPets = () => {
         result.push(images[0]); // push the value of the first image for this pet
       }
     }
-
-    console.log(result);
 
     return result;
   }

@@ -147,7 +147,6 @@ const WeightGraph: React.FC<Props> = ({ data }) => {
         event.preventDefault();
         handleMouseOut();
       });
-    console.log("rendered with new data");
   }, [data]);
 
   const aspectRatio = height / width;

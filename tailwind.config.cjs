@@ -11,6 +11,9 @@ module.exports = {
     },
     maxHeight: {
       none: "none",
+      120: "7.5rem",
+      240: "15rem",
+      360: "22.5rem",
       480: "30rem",
       600: "37.5rem",
       720: "45rem",
