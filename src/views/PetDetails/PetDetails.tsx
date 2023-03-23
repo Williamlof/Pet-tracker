@@ -878,7 +878,9 @@ function PetDetails() {
             />
             <section>
               <button className="bg-blue-500 hover:bg-blue-600 text-white py-4 px-4 rounded-full shadow w-64 sm:w-80 cursor-pointer">
-                <Link to={`/mypets/${name}/statistics`}>Weight Tracker</Link>
+                <Link to={`/mypets/${name}/statistics`}>
+                  View {name}'s Statistics
+                </Link>
               </button>
             </section>
           </div>

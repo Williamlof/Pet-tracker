@@ -81,18 +81,6 @@ export default function header() {
       </h1>
       {navLoggedIn ? (
         <div className="sm:flex justify-evenly items-center w-2/4 hidden text-slate-200 text-2xl">
-          <Link
-            className="text-2xl text-gray-50 transition-all hover:scale-125 hover:translate-x-3 hover:text-blue-900"
-            to="/home"
-          >
-            Home
-          </Link>
-          <Link
-            className="text-2xl text-gray-50 transition-all hover:scale-125 hover:translate-x-3 hover:text-blue-900"
-            to="/About"
-          >
-            About
-          </Link>
           <FontAwesomeIcon
             icon={faUser}
             className="absolute right-12 top-5 text-2xl hidden sm:flex cursor-pointer text-slate-800"
@@ -135,7 +123,7 @@ export default function header() {
           className="absolute right-12 top-12 bg-white text-slate-800 border border-slate-300 rounded shadow-md "
         >
           <li className="cursor-pointer hover:bg-blue-300 p-4">
-            <Link to="/mypets">My Pets</Link>
+            <a href="/#/mypets">My Pets</a>
           </li>
           <li
             className="cursor-pointer hover:bg-blue-300 p-4"
