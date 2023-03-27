@@ -1,38 +1,18 @@
-import React from "react";
-import { useState, useEffect, useRef } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import React, { useState, useEffect, useRef } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faUser, faNavicon } from "@fortawesome/free-solid-svg-icons";
+import { faUser } from "@fortawesome/free-solid-svg-icons";
 
-export default function header() {
+export default function Header() {
   const auth = getAuth();
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [showList, setShowList] = useState<boolean>(false);
   const [navLoggedIn, setNavLoggedIn] = useState<boolean>(false);
   const listRef = useRef<HTMLUListElement>(null);
   const toggleNav = () => {
-    if (isOpen) {
-      setIsOpen(false);
-    } else {
-      setIsOpen(true);
-    }
+    setIsOpen((prevState) => !prevState);
   };
-
-  function handleSignOut() {
-    const user = auth.currentUser;
-    if (user) {
-      auth
-        .signOut()
-        .then(() => {
-          setIsOpen(false);
-          setNavLoggedIn(false);
-          setShowList(false);
-        })
-        .catch((error) => {});
-    } else {
-    }
-  }
 
   const navigate = useNavigate();
 
@@ -55,16 +35,40 @@ export default function header() {
   }, [showList]);
 
   useEffect(() => {
-    onAuthStateChanged(auth, async (user) => {
-      if (auth.currentUser != null || auth.currentUser != undefined)
-        if (user) {
-          setNavLoggedIn(true);
-        } else {
-          navigate("/signin");
-        }
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setNavLoggedIn(true);
+      } else {
+        setNavLoggedIn(false);
+      }
     });
+
+    return unsubscribe;
   }, [auth]);
 
+  useEffect(() => {
+    const user = auth.currentUser;
+
+    if (!user) {
+      navigate("/signin");
+    }
+  }, [auth, navigate]);
+  function handleSignOut() {
+    const user = auth.currentUser;
+
+    if (user) {
+      auth
+        .signOut()
+        .then(() => {
+          setIsOpen(false);
+          setNavLoggedIn(false);
+          setShowList(false);
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    }
+  }
   return (
     <header className="fixed h-16 w-full p-2 flex justify-center bg-gradient-to-r from-blue-400  to-purple-500 z-20">
       <nav
@@ -123,7 +127,9 @@ export default function header() {
           className="absolute right-12 top-12 bg-white text-slate-800 border border-slate-300 rounded shadow-md "
         >
           <li className="cursor-pointer hover:bg-blue-300 p-4">
-            <a href="/#/mypets">My Pets</a>
+            <Link to="/mypets" onClick={toggleNav}>
+              My pets
+            </Link>
           </li>
           <li
             className="cursor-pointer hover:bg-blue-300 p-4"
@@ -155,10 +161,11 @@ export default function header() {
                       My pets
                     </Link>
                   </li>
-                  <li className="text-2xl text-gray-50 underline transition-all hover:scale-125 hover:translate-x-3 hover:text-blue-400">
-                    <Link to="/signin" onClick={handleSignOut}>
-                      Sign Out
-                    </Link>
+                  <li
+                    className="text-2xl text-gray-50 underline transition-all hover:scale-125 hover:translate-x-3 hover:text-blue-400"
+                    onClick={handleSignOut}
+                  >
+                    Sign Out
                   </li>
                 </div>
               ) : (

@@ -104,38 +104,44 @@ function PetDetails() {
   };
   const navigate = useNavigate();
 
-  const fetchPet = async (auth: any, petName: string) => {
-    const petsRef = doc(db, "users", auth);
-    const petsSnapshot = await getDoc(petsRef);
-    if (!petsSnapshot.exists()) {
-      return;
-    }
+  const fetchPet = async (auth: string, petName: string) => {
+    if (auth !== null) {
+      try {
+        const petsRef = doc(db, "users", auth);
+        const petsSnapshot = await getDoc(petsRef);
+        if (!petsSnapshot.exists()) {
+          return;
+        }
 
-    const petsData = petsSnapshot.get("pets");
-    if (!Array.isArray(petsData)) {
-      return;
-    }
+        const petsData = petsSnapshot.get("pets");
+        if (!Array.isArray(petsData)) {
+          return;
+        }
 
-    const pet = petsData.find((pet) => pet.name === petName);
-    if (!pet) {
-      return;
-    }
+        const pet = petsData.find((pet) => pet.name === petName);
+        if (!pet) {
+          return;
+        }
 
-    const petObj = {
-      name: pet.name,
-      breed: pet.breed,
-      notes: pet.notes,
-      weight: pet.weight,
-      birthday: pet.birthday,
-      chipData: pet.chipData,
-      diet: pet.diet,
-      gender: pet.gender,
-      images: pet.images,
-      files: pet.files,
-      weightData: pet.weightData,
-      costData: pet.costData,
-    };
-    setPet(petObj);
+        const petObj = {
+          name: pet.name,
+          breed: pet.breed,
+          notes: pet.notes,
+          weight: pet.weight,
+          birthday: pet.birthday,
+          chipData: pet.chipData,
+          diet: pet.diet,
+          gender: pet.gender,
+          images: pet.images,
+          files: pet.files,
+          weightData: pet.weightData,
+          costData: pet.costData,
+        };
+        setPet(petObj);
+      } catch (error) {
+        console.log(error);
+      }
+    }
   };
 
   const handleInputChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -201,26 +207,35 @@ function PetDetails() {
     try {
       setPopupContent(<p className=" text-3xl ">Uploading image...</p>);
       triggerPopup("");
+
       const userFolderRef = ref(storage, `users/${user.uid}/`);
       const imagesFolderRef = ref(userFolderRef, "images");
+      console.log(imagesFolderRef);
 
       await setDoc(
         doc(collection(db, "users", user.uid, "images")),
         { exists: true },
         { merge: true }
       );
+      console.log("Created images folder");
 
       const imageRef = ref(imagesFolderRef, selectedImage.name);
+
+      console.log("attempting to upload image");
 
       await uploadBytesResumable(imageRef, selectedImage, {
         contentType: selectedImage.type,
       });
+      console.log("Uploaded a blob or file!");
 
       const imageUrl = await getDownloadURL(imageRef);
       const userRef = doc(db, `users/${user.uid}`);
       const userDoc = await getDoc(userRef);
+      console.log(userDoc);
 
       if (!userDoc.exists()) {
+        console.log("No such document!");
+
         return;
       }
 
@@ -230,6 +245,8 @@ function PetDetails() {
       );
 
       if (petIndex === -1) {
+        console.log("Pet not found");
+
         return;
       }
 
@@ -250,7 +267,9 @@ function PetDetails() {
       setTimeout(() => {
         closePopup();
       }, 1000);
-    } catch (error) {}
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const handleFileUpload = async (
@@ -323,26 +342,29 @@ function PetDetails() {
       setTimeout(() => {
         closePopup();
       }, 1000);
-    } catch (error) {}
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   useEffect(() => {
     onAuthStateChanged(auth, async (user) => {
-      if (auth.currentUser != null || auth.currentUser != undefined)
+      if (!auth.currentUser || auth.currentUser === undefined) {
+        setPopupContent(
+          <p className="text-3xl">Please sign in to view this page</p>
+        );
+        setTimeout(closePopup, 1000);
+        navigate("/signin");
+      } else {
         if (user) {
           if (petName) {
             // add a check to make sure petName is defined
             fetchPet(auth.currentUser.uid, petName);
           }
-        } else {
-          setPopupContent(
-            <p className="text-3xl">Please sign in to view this page</p>
-          );
-          setTimeout(closePopup, 1000);
-          navigate("/signin");
         }
+      }
     });
-  }, [auth]);
+  }, [auth, petName]);
 
   const generateUniqueFileName = async (
     filesFolderRef: StorageReference,
@@ -609,14 +631,15 @@ function PetDetails() {
       setUploadImageBtnState("border border-red-500 cursor-not-allowed");
   }
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((user) => {
-      if (user && name) {
+    const unsubscribe = auth.onAuthStateChanged((user: any) => {
+      if (!user && !name) {
+        navigate("/signin");
+      } else {
         getImageUrls(user.uid, name).then((urls) => setImageObject(urls));
         getFileUrls(user.uid, name).then((urls) => setFileObject(urls));
         setTimeout(() => {
           setIsFetching(false);
         }, 5000);
-      } else {
         return;
       }
     });

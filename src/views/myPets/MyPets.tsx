@@ -31,60 +31,54 @@ const MyPets = () => {
   const navigate = useNavigate();
 
   // a function that will fetch all pets from the firestore database
-  const fetchPets = async (auth: any) => {
-    const petsRef = doc(db, "users", auth);
-    const petsSnapshot = await getDoc(petsRef);
-    if (petsSnapshot.exists()) {
-      const petsData = petsSnapshot.get("pets");
-      if (Array.isArray(petsData)) {
-        const petsArray = petsData.map((pet) => {
-          return {
-            name: pet.name,
-            age: pet.age,
-            breed: pet.breed,
-            notes: pet.notes,
-            weight: pet.weight,
-            birthday: pet.birthday,
-            diet: pet.diet,
-            gender: pet.gender,
-            files: pet.files,
-            images: pet.images,
-            weightData: pet.weightData,
-            // Add any other properties you need here
-          };
-        });
-        setPets(petsArray);
+  const fetchPets = async (auth: string) => {
+    if (auth !== null) {
+      try {
+        const petsRef = doc(db, "users", auth);
+        const petsSnapshot = await getDoc(petsRef);
+        if (petsSnapshot.exists()) {
+          const petsData = petsSnapshot.get("pets");
+          if (Array.isArray(petsData)) {
+            const petsArray = petsData.map((pet) => {
+              return {
+                name: pet.name,
+                age: pet.age,
+                breed: pet.breed,
+                notes: pet.notes,
+                weight: pet.weight,
+                birthday: pet.birthday,
+                diet: pet.diet,
+                gender: pet.gender,
+                files: pet.files,
+                images: pet.images,
+                weightData: pet.weightData,
+                // Add any other properties you need here
+              };
+            });
+            setPets(petsArray);
+          } else {
+            console.log("user not signed in anymore");
+            return;
+          }
+        }
+      } catch (error) {
+        console.log(error);
       }
     }
   };
 
-  // load pets data from local storage when component mounts
   useEffect(() => {
-    const petsData = localStorage.getItem("pets");
-    if (petsData) {
-      setPets(JSON.parse(petsData));
-    }
-  }, []);
-
-  // save pets data to local storage when pets state changes
-  useEffect(() => {
-    localStorage.setItem("pets", JSON.stringify(pets));
-  }, [pets]);
-
-  useEffect(() => {
-    onAuthStateChanged(auth, async (user) => {
-      if (auth.currentUser != null || auth.currentUser != undefined)
-        if (user) {
-          fetchPets(auth.currentUser.uid);
-          const firstImage = await getFirstImageIndexForEachPet(
-            auth.currentUser.uid
-          );
-          return firstImage;
-        } else {
-          navigate("/signin");
-        }
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        navigate("/signin");
+      } else {
+        fetchPets(user.uid);
+        const firstImage = await getFirstImageIndexForEachPet(user.uid);
+        return firstImage;
+      }
     });
-  }, []);
+    return unsubscribe;
+  }, [auth, navigate]);
 
   async function getFirstImageIndexForEachPet(userUid: string) {
     const userRef = doc(db, `users/${userUid}`);

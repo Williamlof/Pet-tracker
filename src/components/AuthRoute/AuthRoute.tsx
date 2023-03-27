@@ -3,27 +3,29 @@ import React, { useState, useEffect, PropsWithChildren } from "react";
 import { useNavigate } from "react-router-dom";
 
 export interface IAuthRouteProps {}
+
 const AuthRoute: React.FunctionComponent<IAuthRouteProps> = (props) => {
   const { children }: PropsWithChildren = props;
   const auth = getAuth();
   const navigate = useNavigate();
-  const [loading, setLoading] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    AuthCheck();
-  }, [auth]);
-
-  const AuthCheck = onAuthStateChanged(auth, (user) => {
-    if (user) {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
       setLoading(false);
-    } else {
-      navigate("/signin");
-    }
-  });
+      if (!user) {
+        navigate("/signin");
+      }
+    });
 
-  if (loading) return <p>loading...</p>;
+    return unsubscribe;
+  }, [auth, navigate]);
 
-  return <div className="w-full h-full ">{children}</div>;
+  if (loading) {
+    return <p>loading...</p>;
+  }
+
+  return <div className="w-full h-full">{children}</div>;
 };
 
 export default AuthRoute;
