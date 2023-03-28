@@ -84,20 +84,20 @@ export default function Header() {
         <div className="sm:flex justify-evenly items-center w-3/4 hidden text-slate-200 text-2xl">
           <Link
             className="text-2xl text-gray-50 transition-all hover:scale-125 hover:translate-x-3 hover:text-blue-900"
-            to="/#/home"
+            to="/home"
           >
             Home
           </Link>
           <Link
             className="text-2xl text-gray-50 transition-all hover:scale-125 hover:translate-x-3 hover:text-blue-900"
-            to="/#/about"
+            to="/about"
           >
             About
           </Link>
 
           <Link
             className="text-2xl text-gray-50 transition-all hover:scale-125 hover:translate-x-3 hover:text-blue-900"
-            to="/#/register"
+            to="/register"
           >
             Register
           </Link>
@@ -116,7 +116,7 @@ export default function Header() {
           className="absolute right-12 top-12 bg-white text-slate-800 border border-slate-300 rounded shadow-md "
         >
           <li className="cursor-pointer hover:bg-blue-300 p-4">
-            <Link to="/#/mypets" onClick={toggleNav}>
+            <Link to="/mypets" onClick={toggleNav}>
               My pets
             </Link>
           </li>
@@ -124,7 +124,7 @@ export default function Header() {
             className="cursor-pointer hover:bg-blue-300 p-4"
             onClick={handleSignOut}
           >
-            <Link to="/#/signin">Sign Out</Link>
+            <Link to="/signin">Sign Out</Link>
           </li>
         </ul>
       )}
@@ -134,19 +134,19 @@ export default function Header() {
           <nav className="absolute top-0 right-0 h-screen w-screen bg-gray-900 bg-opacity-1 z-10 uppercase text-white   focus:ring-4 focus:outline-none focus:ring-[#4285F4]/50 font-medium dark:focus:ring-[#4285F4]/55">
             <ul className="flex flex-col items-center justify-center h-full space-y-4">
               <li className="text-2xl text-gray-50 underline transition-all hover:scale-125 hover:translate-x-3 hover:text-blue-400">
-                <Link to="/#/home" onClick={toggleNav}>
+                <Link to="/home" onClick={toggleNav}>
                   Home
                 </Link>
               </li>
               <li className="text-2xl text-gray-50 underline transition-all hover:scale-125 hover:translate-x-3 hover:text-blue-400">
-                <Link to="/#/about" onClick={toggleNav}>
+                <Link to="/about" onClick={toggleNav}>
                   About
                 </Link>
               </li>
               {auth.currentUser?.displayName || auth.currentUser?.email ? (
                 <div className="flex flex-col items-center justify-end space-y-4 h-1/4">
                   <li className="text-2xl text-gray-50 underline transition-all hover:scale-125 hover:translate-x-3 hover:text-blue-400">
-                    <Link to="/#/mypets" onClick={toggleNav}>
+                    <Link to="/mypets" onClick={toggleNav}>
                       My pets
                     </Link>
                   </li>
@@ -160,12 +160,12 @@ export default function Header() {
               ) : (
                 <div className="flex flex-col items-center justify-center space-y-4">
                   <li className="text-2xl text-gray-50 underline transition-all hover:scale-125 hover:translate-x-3 hover:text-blue-400">
-                    <Link to="/#/signin" onClick={toggleNav}>
+                    <Link to="/signin" onClick={toggleNav}>
                       Sign in
                     </Link>
                   </li>
                   <li className="text-2xl text-gray-50 underline transition-all hover:scale-125 hover:translate-x-3 hover:text-blue-400">
-                    <Link to="/#/register" onClick={toggleNav}>
+                    <Link to="/register" onClick={toggleNav}>
                       Register
                     </Link>
                   </li>
