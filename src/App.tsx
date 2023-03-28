@@ -17,12 +17,11 @@ import PetDetails from "./views/PetDetails/PetDetails";
 import Statistics from "./views/Statistics/Statistics";
 
 initializeApp(firebaseConfig);
-
+// app is initialized and ready to use
 const App: React.FC = () => {
   return (
     <div className=" h-full w-full bg-gradient-to-b from-slate-900 to-slate-700 ">
       <Header />
-
       <Routes>
         <Route path="/home" element={<Home />} />
         <Route path="/about" element={<About />} />
@@ -38,9 +37,7 @@ const App: React.FC = () => {
             </AuthRoute>
           }
         />
-
         <Route path="/mypets/addPet" element={<AddPet />} />
-
         <Route path="/mypets/:petName" element={<PetDetails />} />
         <Route path="/mypets/:petName/Statistics" element={<Statistics />} />
       </Routes>
