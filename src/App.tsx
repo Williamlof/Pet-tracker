@@ -4,7 +4,7 @@ import About from "./views/about/About";
 import Error from "./views/error/Error";
 import Home from "./views/home/Home";
 import Register from "./views/register/Register";
-import Header from "./components/header/header";
+import Header from "./components/header/Header";
 import AuthRoute from "./components/AuthRoute/AuthRoute";
 import { Route, Routes, Navigate } from "react-router-dom";
 import SignInPage from "./views/signIn/SignIn";
