@@ -3,7 +3,6 @@ import { Link, useNavigate } from "react-router-dom";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUser } from "@fortawesome/free-solid-svg-icons";
-// comment
 export default function Header() {
   const auth = getAuth();
   const [isOpen, setIsOpen] = useState<boolean>(false);
@@ -85,20 +84,20 @@ export default function Header() {
         <div className="sm:flex justify-evenly items-center w-3/4 hidden text-slate-200 text-2xl">
           <Link
             className="text-2xl text-gray-50 transition-all hover:scale-125 hover:translate-x-3 hover:text-blue-900"
-            to="/#/Home"
+            to="/#/home"
           >
             Home
           </Link>
           <Link
             className="text-2xl text-gray-50 transition-all hover:scale-125 hover:translate-x-3 hover:text-blue-900"
-            to="/#/About"
+            to="/#/about"
           >
             About
           </Link>
 
           <Link
             className="text-2xl text-gray-50 transition-all hover:scale-125 hover:translate-x-3 hover:text-blue-900"
-            to="/#/Register"
+            to="/#/register"
           >
             Register
           </Link>
