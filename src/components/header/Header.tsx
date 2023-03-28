@@ -13,9 +13,6 @@ export default function Header() {
   const toggleNav = () => {
     setIsOpen((prevState) => !prevState);
   };
-
-  const navigate = useNavigate();
-
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (listRef.current && !listRef.current.contains(event.target as Node)) {
@@ -46,13 +43,6 @@ export default function Header() {
     return unsubscribe;
   }, [auth]);
 
-  useEffect(() => {
-    const user = auth.currentUser;
-
-    if (!user) {
-      navigate("/signin");
-    }
-  }, [auth, navigate]);
   function handleSignOut() {
     const user = auth.currentUser;
 

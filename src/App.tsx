@@ -17,7 +17,6 @@ import PetDetails from "./views/PetDetails/PetDetails";
 import Statistics from "./views/Statistics/Statistics";
 
 initializeApp(firebaseConfig);
-// app is initialized and ready to use
 const App: React.FC = () => {
   return (
     <div className=" h-full w-full bg-gradient-to-b from-slate-900 to-slate-700 ">
