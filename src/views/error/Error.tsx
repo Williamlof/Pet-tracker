@@ -1,21 +1,21 @@
 import React from "react";
-
+import { Link, useNavigate } from "react-router-dom";
 export default function Error() {
   return (
-    <div className="bg-gradient-to-b from-slate-900  to-slate-700 flex justify-evenly items-center flex-col-reverse sm:flex-col pt-24 min-h-screen">
-      <h1 className=" text-6xl text-slate-200">
+    <div className="bg-gradient-to-b from-slate-900  to-slate-700 flex justify-evenly items-center flex-col sm:flex-col pt-24 min-h-screen">
+      <h1 className=" text-6xl text-slate-200 p-4">
         Error 404 <br />
         This wasn't supposed to happen
       </h1>
-      <a
+      <Link
         className="bg-blue-500 hover:bg-blue-600 text-white py-4 px-4 rounded-full shadow w-64 sm:w-96 cursor-pointer text-center"
-        href="/home"
+        to="/home"
       >
         Take me Home
-      </a>
+      </Link>
       <div className="sm:h-full sm:flex sm:items-center justify-center top-40 sm:static">
         <svg
-          className=" absolute right-64 bottom-64 w-20 h-20 scale-150 sm:scale-300 md:scale-400 lg:scale-400 xl:animate-wiggle"
+          className=" absolute sm:right-64 sm:bottom-64 bottom-8 right-32 w-20 h-20 scale-150 sm:scale-300 md:scale-400 lg:scale-400 xl:animate-wiggle"
           fill="black"
           fillRule="evenodd"
         >
