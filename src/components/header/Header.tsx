@@ -54,6 +54,7 @@ export default function Header() {
           setIsOpen(false);
           setNavLoggedIn(false);
           setShowList(false);
+          navigate("/home");
         })
         .catch((error) => {
           console.log(error);
@@ -120,18 +121,19 @@ export default function Header() {
           ref={listRef}
           className="absolute right-12 top-12 bg-white text-slate-800 border border-slate-300 rounded shadow-md "
         >
-          <li className="cursor-pointer hover:bg-blue-300">
-            <Link className="p-8 m-8" to="/mypets">
-              My pets
-            </Link>
+          <li
+            className="cursor-pointer hover:bg-blue-300 p-4"
+            onClick={() => {
+              navigate("/mypets");
+            }}
+          >
+            My pets
           </li>
           <li
-            className="cursor-pointer hover:bg-blue-300"
+            className="cursor-pointer hover:bg-blue-300 p-4"
             onClick={handleSignOut}
           >
-            <Link className="p-8 m-8" to="/signin">
-              Sign Out
-            </Link>
+            Sign Out
           </li>
         </ul>
       )}
