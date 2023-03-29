@@ -116,9 +116,7 @@ export default function Header() {
           className="absolute right-12 top-12 bg-white text-slate-800 border border-slate-300 rounded shadow-md "
         >
           <li className="cursor-pointer hover:bg-blue-300 p-4">
-            <Link to="/mypets" onClick={toggleNav}>
-              My pets
-            </Link>
+            <Link to="/mypets">My pets</Link>
           </li>
           <li
             className="cursor-pointer hover:bg-blue-300 p-4"
