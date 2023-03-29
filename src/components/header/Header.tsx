@@ -3,12 +3,14 @@ import { Link, useNavigate } from "react-router-dom";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUser } from "@fortawesome/free-solid-svg-icons";
+
 export default function Header() {
   const auth = getAuth();
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [showList, setShowList] = useState<boolean>(false);
   const [navLoggedIn, setNavLoggedIn] = useState<boolean>(false);
   const listRef = useRef<HTMLUListElement>(null);
+  const navigate = useNavigate();
   const toggleNav = () => {
     setIsOpen((prevState) => !prevState);
   };
@@ -69,7 +71,10 @@ export default function Header() {
         <div className="w-8 h-0.5 bg-amber-100"></div>
       </nav>
 
-      <h1 className=" text-gray-50 text-5xl italic h-full text-center">
+      <h1
+        className=" text-gray-50 text-5xl italic h-full text-center"
+        onClick={() => navigate("/home")}
+      >
         PetFolio
       </h1>
       {navLoggedIn ? (
@@ -115,14 +120,18 @@ export default function Header() {
           ref={listRef}
           className="absolute right-12 top-12 bg-white text-slate-800 border border-slate-300 rounded shadow-md "
         >
-          <li className="cursor-pointer hover:bg-blue-300 p-4">
-            <Link to="/mypets">My pets</Link>
+          <li className="cursor-pointer hover:bg-blue-300">
+            <Link className="p-4" to="/mypets">
+              My pets
+            </Link>
           </li>
           <li
-            className="cursor-pointer hover:bg-blue-300 p-4"
+            className="cursor-pointer hover:bg-blue-300"
             onClick={handleSignOut}
           >
-            <Link to="/signin">Sign Out</Link>
+            <Link className="p-4" to="/signin">
+              Sign Out
+            </Link>
           </li>
         </ul>
       )}

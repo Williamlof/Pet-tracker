@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { initializeApp } from "firebase/app";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { getAuth } from "firebase/auth";
 import { getFirestore, doc, updateDoc, arrayUnion } from "firebase/firestore";
 import { firebaseConfig } from "../../../services/firebase";
@@ -94,7 +94,7 @@ const AddPetForm = () => {
           costData: [],
         }),
       });
-      navigate("/mypets");
+      navigate(`/mypets/${petData.name}`);
     } catch (e) {}
   };
   return (
@@ -120,6 +120,7 @@ const AddPetForm = () => {
           <input
             type="text"
             value={petData.name}
+            required
             onChange={(e) => setPetData({ ...petData, name: e.target.value })}
             className=" w-full rounded-lg h-10 shadow-md text-slate-800 p-4"
           />
@@ -129,6 +130,7 @@ const AddPetForm = () => {
           Birthday:
           <input
             type="date"
+            required
             value={petData.birthday.toString().slice(0, 10)}
             onChange={(e) =>
               setPetData({ ...petData, birthday: e.target.value })
@@ -143,6 +145,7 @@ const AddPetForm = () => {
         <label className=" text-slate-200 text-md w-full">
           Breed:
           <input
+            required
             type="text"
             value={petData.breed}
             onChange={(e) => setPetData({ ...petData, breed: e.target.value })}
@@ -153,6 +156,7 @@ const AddPetForm = () => {
         <label className=" text-slate-200 text-md w-full">
           Chip number:
           <input
+            required
             type="text"
             value={petData.chipNumber}
             onChange={(e) =>
@@ -165,6 +169,7 @@ const AddPetForm = () => {
         <label className=" text-slate-200 text-md w-full">
           Weight (in kg's):
           <input
+            required
             className=" w-full rounded-lg h-10 shadow-md text-slate-800 p-4"
             type="number"
             step={0.5}
@@ -189,6 +194,7 @@ const AddPetForm = () => {
         <label className=" text-slate-200 text-md w-full">
           Gender:
           <select
+            required
             value={petData.gender}
             onChange={(e) => setPetData({ ...petData, gender: e.target.value })}
             className=" w-full rounded-lg h-10 shadow-md text-slate-800 px-4"
@@ -211,12 +217,12 @@ const AddPetForm = () => {
         </label>
         <br />
         <section className="w-full flex justify-between">
-          <a
-            className=" text-blue-500 dark:text-blue-400 hover:underline mt-8 text-lg font-semibold self-start pl-8 mb-8 "
-            href="/myPets"
+          <Link
+            className=" text-red-500 dark:text-red-400 hover:underline mt-8 text-lg font-semibold self-start pl-8 mb-8 "
+            to="/myPets"
           >
             Cancel
-          </a>
+          </Link>
           <button
             className="bg-blue-500 hover:bg-blue-600 text-white py-2  rounded-lg  self-center w-1/3 shadow-lg"
             type="submit"
