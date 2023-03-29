@@ -72,7 +72,7 @@ export default function Header() {
       </nav>
 
       <h1
-        className=" text-gray-50 text-5xl italic h-full text-center"
+        className=" text-gray-50 text-5xl italic h-full text-center cursor-pointer"
         onClick={() => navigate("/home")}
       >
         PetFolio
