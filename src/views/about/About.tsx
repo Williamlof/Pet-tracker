@@ -1,4 +1,7 @@
+import { useNavigate, Link } from "react-router-dom";
+
 export default function About() {
+  const navigate = useNavigate();
   return (
     <div className=" bg-gray-800 flex justify-center items-center sm:min-h-screen">
       <section className=" pt-24 p-4 text-slate-100 bg-gray-800 flex justify-center items-center flex-col sm:w-5/12">
@@ -180,17 +183,17 @@ export default function About() {
         </p>
         <section className="w-full flex justify-between items-center flex-col h-32">
           <button
-            className=" mt-6 bg-blue-500 hover:bg-blue-600 text-white py-4 px-4 rounded-full shadow w-64 cursor-pointer"
-            onClick={() => (window.location.href = "/register")}
+            className="bg-blue-500 hover:bg-blue-600 text-white py-4 px-4 rounded-full shadow w-64 sm:w-96 cursor-pointer"
+            onClick={() => navigate("/register")}
           >
             Register now
           </button>
-          <a
+          <Link
             className="font-medium text-blue-600 dark:text-blue-500 hover:underline"
-            href="/signin"
+            to="/signin"
           >
             Or click here to sign in with Google
-          </a>
+          </Link>
         </section>
       </section>
     </div>
