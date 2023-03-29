@@ -183,7 +183,7 @@ export default function About() {
         </p>
         <section className="w-full flex justify-between items-center flex-col h-32">
           <button
-            className="bg-blue-500 hover:bg-blue-600 text-white py-4 px-4 rounded-full shadow w-64 sm:w-96 cursor-pointer"
+            className="bg-blue-500 hover:bg-blue-600 text-white py-4 px-4 rounded-full shadow w-64 sm:w-96 cursor-pointer mt-4"
             onClick={() => navigate("/register")}
           >
             Register now
