@@ -121,7 +121,7 @@ export default function Header() {
           className="absolute right-12 top-12 bg-white text-slate-800 border border-slate-300 rounded shadow-md "
         >
           <li className="cursor-pointer hover:bg-blue-300">
-            <Link className="p-8" to="/mypets">
+            <Link className="p-8 m-8" to="/mypets">
               My pets
             </Link>
           </li>
@@ -129,7 +129,7 @@ export default function Header() {
             className="cursor-pointer hover:bg-blue-300"
             onClick={handleSignOut}
           >
-            <Link className="p-8" to="/signin">
+            <Link className="p-8 m-8" to="/signin">
               Sign Out
             </Link>
           </li>
