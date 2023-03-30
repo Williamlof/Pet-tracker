@@ -144,6 +144,98 @@ function PetDetails() {
     }
   };
 
+  const confirmDelete = async () => {
+    return new Promise<boolean>((resolve) => {
+      triggerPopup("");
+      setPopupContent(
+        <div className="flex flex-col justify-center items-center rounded-md p-4 min-w-full">
+          <p className="p-2 font-bold text-xl">
+            Are you sure you want to delete this pet? This action cannot be
+            undone.
+          </p>
+          <section className="flex flex-row">
+            <button
+              onClick={() => resolve(false)}
+              className="
+              border border-blue-500
+              bg-blue-500
+              text-white
+              rounded-md
+              px-4
+              py-0
+              m-2
+              transition
+              duration-500
+              ease select-none
+              hover:blue-red-600
+              focus:outline-none
+              focus:shadow-outline
+            
+            
+            "
+            >
+              No, don't delete my pet
+            </button>
+            <button
+              onClick={() => resolve(true)}
+              className="
+              border border-red-500
+              bg-red-500
+              text-white
+              rounded-md
+              px-4
+              py-2
+              m-2
+              transition
+              duration-500
+              ease select-none
+              hover:bg-red-600
+              focus:outline-none
+              focus:shadow-outline
+              "
+            >
+              Yes, really delete pet
+            </button>
+          </section>
+        </div>
+      );
+    });
+  };
+
+  const deletePet = async (petName: string) => {
+    const answer = await confirmDelete();
+    const auth = getAuth();
+    if (auth !== null && answer === true) {
+      try {
+        const petsRef = doc(db, "users", auth.currentUser!.uid);
+        const petsSnapshot = await getDoc(petsRef);
+        console.log(petsSnapshot);
+
+        if (!petsSnapshot.exists()) {
+          return;
+        }
+
+        const petsData = petsSnapshot.get("pets");
+        if (!Array.isArray(petsData)) {
+          return;
+        }
+
+        const petIndex = petsData.findIndex((pet) => pet.name === petName);
+        if (petIndex === -1) {
+          return;
+        }
+
+        const newPetsData = [...petsData];
+        newPetsData.splice(petIndex, 1);
+
+        await updateDoc(petsRef, { pets: newPetsData });
+        navigate("/mypets");
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  };
+
   const handleInputChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
     const { name, value } = event.target;
     setPet((prevState) => ({
@@ -899,7 +991,7 @@ function PetDetails() {
                 </div>
               }
             />
-            <section>
+            <section className="flex flex-col gap-10">
               <button
                 className="bg-blue-500 hover:bg-blue-600 text-white py-4 px-4 rounded-full shadow w-64 sm:w-80 cursor-pointer"
                 onClick={() => {
@@ -907,6 +999,12 @@ function PetDetails() {
                 }}
               >
                 View {name}'s Statistics
+              </button>
+              <button
+                className="bg-red-500 hover:bg-red-600 text-white py-4 px-4 rounded-full shadow w-64 sm:w-80 cursor-pointer"
+                onClick={() => petName && deletePet(petName)}
+              >
+                Delete Pet
               </button>
             </section>
           </div>

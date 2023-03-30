@@ -4,9 +4,12 @@ import { NumberValue } from "d3";
 
 type Props = {
   data: { date: string; weight: number }[];
+  setData: React.Dispatch<
+    React.SetStateAction<{ date: string; weight: number }[]>
+  >;
 };
 
-const WeightGraph: React.FC<Props> = ({ data }) => {
+const WeightGraph: React.FC<Props> = ({ data, setData }) => {
   const graphRef = useRef<SVGSVGElement>(null);
   const screenWidth = window.innerWidth;
   const width = screenWidth <= 640 ? screenWidth * 2 : 800;

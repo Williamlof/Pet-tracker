@@ -32,23 +32,30 @@ const auth = getAuth(app);
 const storage = getStorage(app);
 import { active } from "d3";
 
+type CostData = {
+  [key: string]: number;
+  food: number;
+  veterinary: number;
+  insurance: number;
+  other: number;
+};
+
+type MonthData = {
+  month: string;
+  totalSpent: number;
+  costs: CostData;
+};
+
+type WeightData = {
+  date: string;
+  weight: number;
+};
+
 export default function Statistics() {
   const navigate = useNavigate();
   const name = useParams().petName;
-  const [weightData, setWeightData] = useState([]);
-  const [costData, setCostData] = useState<
-    {
-      month: string;
-      totalSpent: number;
-      costs: {
-        food: number;
-        veterinary: number;
-        insurance: number;
-        other: number;
-      };
-    }[]
-  >([]);
-
+  const [weightData, setWeightData] = useState<WeightData[]>([]);
+  const [costData, setCostData] = useState<MonthData[]>([]);
   const [popupContent, setPopupContent] = useState<React.ReactNode>(<></>);
   const [showPopup, setShowPopup] = useState(false);
   const [background, setBackground] = useState<string>("bg-slate-100");
@@ -296,7 +303,7 @@ export default function Statistics() {
   }, [auth, fetchDataTrigger]);
 
   return (
-    <div className="w-full pt-20 bg-gradient-to-b from-slate-900 to-slate-700 sm:flex sm:justify-center">
+    <div className="w-full pt-20 bg-gradient-to-b from-slate-900 to-slate-700 sm:flex sm:justify-center min-h-full">
       <div className="flex flex-col items-center justify-center px-4 py-8 sm:w-3/4 ">
         <select
           className="bg-slate-100 text-slate-900 rounded p-2 mb-4"
@@ -322,9 +329,17 @@ export default function Statistics() {
           {activeComponent} Statistics for {name}
         </h1>
         {activeComponent === "Weight" ? (
-          <WeightGraph data={weightData} />
+          <WeightGraph data={weightData} setData={setWeightData} />
         ) : (
-          <CostAnalysisGraph data={costData} />
+          <>
+            {activeComponent === "Cost" && costData.length > 0 ? (
+              <CostAnalysisGraph data={costData} setData={setCostData} />
+            ) : (
+              <section className="h-32 w-full text-center pt-12">
+                <p className="text-white">No data to display</p>
+              </section>
+            )}
+          </>
         )}
         {activeComponent === "Weight" ? (
           <div className="flex border my-4 p-4 rounded w-full sm:w-2/4">
